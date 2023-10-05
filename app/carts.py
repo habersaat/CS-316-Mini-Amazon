@@ -20,4 +20,5 @@ class CartsForm(FlaskForm):
 def carts():
     form = CartsForm()
     cart_items = Cart.items_by_uid(form.userID.data)
-    return render_template('carts.html', cart_items=cart_items, form=form)
+    print("The cart items are: ", cart_items)
+    return render_template('carts.html', title='My Cart', form=form, cart_items=cart_items)
