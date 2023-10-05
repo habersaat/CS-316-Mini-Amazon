@@ -11,13 +11,14 @@ class Review:
         self.upvotes = upvotes
 
     @staticmethod
-    def reviews_by_product_id(product_id):
-        print("The product_id is: ", product_id)
+    def five_most_recent_by_user_id(uid):
+        print("The product_id is: ", uid)
         rows = app.db.execute('''
 SELECT review_id, product_id, user_id, rating, comment, timestamp, upvotes
 FROM Review
-WHERE product_id = :product_id
+WHERE user_id = :uid
 ORDER BY timestamp DESC
+LIMIT 5
 ''',
-                              product_id=product_id)
+                              uid=uid)
         return [Review(*row) for row in rows]
