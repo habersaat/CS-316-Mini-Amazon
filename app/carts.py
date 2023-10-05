@@ -19,5 +19,5 @@ class CartsForm(FlaskForm):
 @bp.route('/carts', methods=['GET', 'POST'])
 def carts():
     form = CartsForm()
-    cart_items = Cart.items_by_uid(27)
+    cart_items = Cart.items_by_uid(form.userID.data)
     return render_template('carts.html', cart_items=cart_items, form=form)
