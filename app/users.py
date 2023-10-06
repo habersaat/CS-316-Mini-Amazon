@@ -79,14 +79,8 @@ def logout():
 def sellers_guru():
     return render_template('sellers.html')
 
-'''
 @bp.route('/sellers')
 def dashboard():
-    user_id = current_user.id  
-    
-    order_history = OrderHistory.get_all_by_uid(user_id)
-    inventory = Inventory.get_all_for_seller(user_id)
-    
-    return render_template('sellers.html', order_history=order_history, inventory=inventory)
-    
-'''
+    orders = load_data_from_csv("Orders.csv")
+    inventory = load_data_from_csv("Inventory.csv")
+    return render_template('sellers.html', orders=orders, inventory=inventory)
