@@ -1,0 +1,10 @@
+FLASK_APP=amazon.py
+FLASK_DEBUG=True
+FLASK_RUN_HOST=0.0.0.0
+FLASK_RUN_PORT=8080
+SECRET_KEY='azupmwip5mnw0vuv-ft3slyvgiygzyty86hb60zy08lrl0i-lp'
+DB_NAME=amazon
+DB_USER=ubuntu
+DB_PORT=5432
+DB_HOST=localhost
+DB_PASSWORD=wc3hUMpRhDMRe8VruG8MA4JaByERGn
