@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2 style="text-align: center;">Your Dashboard</h2>
+
+{% if current_user.is_authenticated %}
+
+    <!-- Button to Add a Product to the Inventory -->
+    <div class="add-product-button" style="margin-bottom: 30px; text-align: center;">
+        <button onclick="location.href='/add-product'">Add New Product</button>
+    </div>
+
+    <!-- Inventory/Stock Table -->
+    <h3 class="centered" style="text-align: center; margin-bottom: 20px;">Your Inventory</h3>
+    <table class="centered" style="margin: 0 auto 40px auto;">
+        <thead>
+            <tr>
+                <th>Product ID</th>
+                <th>Product Name</th>
+                <th>Available Quantity</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for product in products %}
+            <tr>
+                <td>{{ product.id }}</td>
+                <td>{{ product.name }}</td>
+                <td>{{ product.quantity }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- Order History Table -->
+    <h3 class="centered" style="text-align: center; margin-bottom: 20px;">Order History</h3>
+    <table class="centered" style="margin: 0 auto;">
+        <thead>
+            <tr>
+                <th>Customer ID</th>
+                <th>Order ID</th>
+                <th>Product</th>
+                <th>Quantity</th>
+                <th>Total Price</th>
+                <th>Fulfilled?</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for order in orders %}
+            <tr>
+                <td>{{ order.customer_id }}</td>
+                <td>{{ order.order_id }}</td>
+                <td>{{ order.product_name }}</td>
+                <td>{{ order.quantity }}</td>
+                <td>${{ order.total_price }}</td>
+                <td>{{ "Yes" if order.fulfilled else "No" }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+{% else %}
+    <p style="text-align: center;">Please login to view your dashboard.</p>
+{% endif %}
+
+{% endblock %}

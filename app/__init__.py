@@ -4,6 +4,7 @@ from .config import Config
 from .db import DB
 
 
+
 login = LoginManager()
 login.login_view = 'users.login'
 

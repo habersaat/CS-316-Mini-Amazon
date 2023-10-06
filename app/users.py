@@ -5,6 +5,8 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, BooleanField, SubmitField
 from wtforms.validators import ValidationError, DataRequired, Email, EqualTo
 
+
+
 from .models.user import User
 
 
@@ -72,3 +74,19 @@ def register():
 def logout():
     logout_user()
     return redirect(url_for('index.index'))
+
+@bp.route('/sellers')
+def sellers_guru():
+    return render_template('sellers.html')
+
+'''
+@bp.route('/sellers')
+def dashboard():
+    user_id = current_user.id  
+    
+    order_history = OrderHistory.get_all_by_uid(user_id)
+    inventory = Inventory.get_all_for_seller(user_id)
+    
+    return render_template('sellers.html', order_history=order_history, inventory=inventory)
+    
+'''
