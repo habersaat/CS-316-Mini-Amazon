@@ -79,8 +79,10 @@ def logout():
 def sellers_guru():
     return render_template('sellers.html')
 
+'''
 @bp.route('/sellers')
 def dashboard():
-    orders = load_data_from_csv("Orders.csv")
-    inventory = load_data_from_csv("Inventory.csv")
-    return render_template('sellers.html', orders=orders, inventory=inventory)
+    orders_data = csv("Orders.csv")
+    inventory_data = csv("Inventory.csv")
+    return render_template('sellers.html', orders=orders_data, inventory=inventory_data)
+'''
