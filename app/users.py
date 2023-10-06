@@ -71,3 +71,20 @@ def register():
 def logout():
     logout_user()
     return redirect(url_for('index.index'))
+
+class Purchase(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    purchase_date = db.Column(db.DateTime, default=datetime.utcnow)
+    total_amount = db.Column(db.Float, nullable=False)
+    num_items = db.Column(db.Integer, nullable=False)
+    fulfillment_status = db.Column(db.String(20), nullable=False)
+
+    def serialize(self):
+        return {
+            'purchase_id': self.id,
+            'purchase_date': self.purchase_date.strftime('%Y-%m-%d %H:%M:%S'),
+            'total_amount': self.total_amount,
+            'num_items': self.num_items,
+            'fulfillment_status': self.fulfillment_status
+        }
