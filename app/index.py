@@ -14,6 +14,20 @@ def index():
     # get the k value from the url parameters. For reference, the url looks like: /price_desc?k=5
     k = request.args.get('price_desc')
 
+    # get the page number from the url parameters. For reference, the url looks like: /?page=2
+    currentPage = request.args.get('page')
+    if currentPage is not None and currentPage != '':
+        currentPage = int(currentPage) - 1
+    else:
+        currentPage = 0
+
+    # get the number of products per page from the url parameters. For reference, the url looks like: /?page=2&n=10
+    n = request.args.get('n')
+    if n is not None and n != '':
+        n = int(n)
+    else:
+        n = 12
+
     # if k is not None, then convert it to an int
     if k is not None and k != '':
         k = int(k)
@@ -27,8 +41,19 @@ def index():
         products = Product.k_most_expensive(k)
 
     else:
-        # get all available products for sale:
-        products = Product.get_all(True)
+        # products = Product.get_k_page_of_n(currentPage, n)
+        # products = Product.get_all(True)
+
+        if request.args.get('filter') == 'price_asc':
+            products = Product.get_k_page_of_n_price_asc(currentPage, n)
+        elif request.args.get('filter') == 'price_desc':
+            products = Product.get_k_page_of_n_price_desc(currentPage, n)
+        elif request.args.get('filter') == 'name_asc':
+            products = Product.get_k_page_of_n_name_asc(currentPage, n)
+        elif request.args.get('filter') == 'name_desc':
+            products = Product.get_k_page_of_n_name_desc(currentPage, n)
+        else:
+            products = Product.get_k_page_of_n(currentPage, n)
 
     # find the products current user has bought:
     if current_user.is_authenticated:
