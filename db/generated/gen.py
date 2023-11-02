@@ -99,8 +99,8 @@ def gen_reviews(num_reviews, available_pids):
         print(f'{num_reviews} generated')
 
 
-# gen_users(num_users)
+gen_users(num_users)
 available_pids = gen_products(num_products)
-# gen_purchases(num_purchases, available_pids)
-# gen_carts(num_purchases, available_pids)
-# gen_reviews(num_reviews, available_pids)
+gen_purchases(num_purchases, available_pids)
+gen_carts(num_purchases, available_pids)
+gen_reviews(num_reviews, available_pids)
