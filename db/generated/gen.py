@@ -36,18 +36,22 @@ def gen_users(num_users):
 
 def gen_products(num_products):
     available_pids = []
-    with open('Products.csv', 'w') as f:
+    with open('ProductsGen2.csv', 'w') as f:
         writer = get_csv_writer(f)
         print('Products...', end=' ', flush=True)
         for pid in range(num_products):
             if pid % 100 == 0:
                 print(f'{pid}', end=' ', flush=True)
-            name = fake.sentence(nb_words=4)[:-1]
+            name = fake.sentence(nb_words=3)[:-1]
             price = f'{str(fake.random_int(max=500))}.{fake.random_int(max=99):02}'
+            description_short = fake.sentence(nb_words=10)
+            description_long = fake.sentence(nb_words=200)
+            rating = f'{str(fake.random_int(min=1,max=4))}.{str(fake.random_int(max=9))}'
+            img_url = fake.image_url()
             available = fake.random_element(elements=('true', 'false'))
             if available == 'true':
                 available_pids.append(pid)
-            writer.writerow([pid, name, price, available])
+            writer.writerow([pid, name, description_short, description_long, rating, img_url, price, available])
         print(f'{num_products} generated; {len(available_pids)} available')
     return available_pids
 
