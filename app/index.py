@@ -52,6 +52,10 @@ def index():
             products = Product.get_k_page_of_n_name_asc(currentPage, n)
         elif request.args.get('filter') == 'name_desc':
             products = Product.get_k_page_of_n_name_desc(currentPage, n)
+        elif request.args.get('filter') == 'rating_asc':
+            products = Product.get_k_page_of_n_rating_asc(currentPage, n)
+        elif request.args.get('filter') == 'rating_desc':
+            products = Product.get_k_page_of_n_rating_desc(currentPage, n)
         else:
             products = Product.get_k_page_of_n(currentPage, n)
 
