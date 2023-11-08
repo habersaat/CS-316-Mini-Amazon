@@ -10,7 +10,7 @@ bp = Blueprint('index', __name__)
 
 # Create index that gives the top k most expensive products which are passed in through a form submit
 @bp.route('/', methods=['GET', 'POST'])
-def index():
+def index_post():
     # get the k value from the url parameters. For reference, the url looks like: /price_desc?k=5
     k = request.args.get('price_desc')
 
