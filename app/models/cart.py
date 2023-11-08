@@ -4,9 +4,9 @@ from flask import current_app as app
 
 class Cart:
     def __init__(self, id, uid, pid):
-        self.id = id
-        self.uid = uid
-        self.pid = pid
+        self.id = id #cart id
+        self.uid = uid #user id
+        self.pid = pid #product id
 
     @staticmethod
     def items_by_uid(uid):
