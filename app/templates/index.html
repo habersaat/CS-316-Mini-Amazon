@@ -2,19 +2,55 @@
 
 {% block content %}
 
-<br><br>
-
-<h2>Products for sale:</h2>
-
-<!-- Form to sort by k most expensive products: -->
-<div>
+<!-- <div>
   <form>
-    <label for="fname">Sort by: Top k Most Expensive</label><br>
-    <input type="text" id="price_desc" name="price_desc"><br>
-    <input type="submit" value="Submit">
+    <p>
+      <label for="fname">Sort by: Top k Most Expensive</label><br>
+      <input type="text" id="price_desc" name="price_desc"><br>
+    </p>
+    <p>
+      <input type="submit" value="Submit">
+    </p>
   </form>
+</div> -->
+<div>
+  <p>
+    <form class="search-container">
+      <div class="filter-buttons">
+        <div class="dropdown">
+          <button class="dropbtn">Sort by</button>
+          <div class="dropdown-content">
+            <a href="#" onclick="sortBy('price_asc')">Price asc</a>
+            <a href="#" onclick="sortBy('price_desc')">Price desc</a>
+            <a href="#" onclick="sortBy('name_asc')">Name asc</a>
+            <a href="#" onclick="sortBy('name_desc')">Name desc</a>
+            <a href="#" onclick="sortBy('rating_asc')">Rating asc</a>
+            <a href="#" onclick="sortBy('rating_desc')">Rating desc</a>
+          </div>
+        </div>
+
+        <div class="dropdown">
+          <button class="dropbtn">Per page</button>
+          <div class="dropdown-content">
+            <a href="#" onclick="setN(12)">12</a>
+            <a href="#" onclick="setN(24)">24</a>
+            <a href="#" onclick="setN(48)">48</a>
+          </div>
+        </div>
+      </div>
+
+      <input type="text" id="search-bar" placeholder="What are you looking for?">
+      <img class="search-icon" src="http://www.endlessicons.com/wp-content/uploads/2012/12/search-icon.png">
+
+      <div class="page-buttons">
+        <a href="#" onclick="prevPage()" class="previous">&laquo; Previous</a>
+        <a href="#" onclick="nextPage()" class="next">Next &raquo;</a>
+      </div>
+    </form>
+  </p>
+
 </div>
-<table class='table table-hover table-bordered container'>
+<!-- <table class='table table-hover table-bordered container'>
   <thead class="thead-dark">
     <tr>
       <th scope="col">Product ID</th>
@@ -31,7 +67,19 @@
       </tr>
     {% endfor %}
   </tbody>
-</table>
+</table> -->
+
+<main class="page-content">
+  {% for product in avail_products%}
+    <div class="card" style="--img: url({{product.image_url}})">
+      <div class="content">
+        <h2 class="title">{{product.name}}</h2>
+        <p class="price">${{product.price}}</p>
+        <p class="copy">Product ID: {{product.id}}. Rating: {{product.rating}}. {{product.description_short}}</p><button onclick="getProduct({{product.id}})" class="btn">View Product</button>
+      </div>
+    </div>
+  {% endfor %}
+</main>
 
 <br><br>
 {% if current_user.is_authenticated %}
@@ -57,5 +105,90 @@
 {% else %}
 <p><a href="{{ url_for('users.login') }}">Log in</a> to see your purchase history!</p>
 {% endif %}
+
+<script>
+  function nextPage() {
+    var page = window.location.search.split('page=')[1];
+
+    if (page == undefined) {
+      page = 1;
+    }
+
+    var newPage = parseInt(page) + 1;
+
+    var n = window.location.search.split('n=')[1];
+
+    if (n == undefined) {
+      window.location.href = "/?page=" + newPage;
+    } else {
+      window.location.href = "/?page=" + newPage + "&n=" + n;
+    }
+  }
+
+  function prevPage() {
+    var page = window.location.search.split('page=')[1];
+    var newPage = parseInt(page) - 1;
+
+    if (newPage <= 0 || page == undefined) {
+      // alert("You are already on the first page!");
+      newPage = 1;
+    }
+
+    var n = window.location.search.split('n=')[1];
+
+    if (n == undefined) {
+      window.location.href = "/?page=" + newPage;
+    } else {
+      window.location.href = "/?page=" + newPage + "&n=" + n;
+    }
+  }
+
+  function setN(newN) {
+    var page = window.location.search.split('page=')[1];
+    page = parseInt(page);
+    var filter = window.location.search.split('filter=')[1];
+
+    if (page == undefined) {
+      page = 1;
+    } else {
+      page = parseInt(page);
+    }
+
+    if (filter == undefined) {
+      window.location.href = "/?page=" + 1 + "&n=" + newN;
+    } else {
+      window.location.href = "/?page=" + 1 + "&n=" + newN + "&filter=" + filter;
+    }
+  }
+
+  function sortBy(newFilter) {
+    var page = window.location.search.split('page=')[1];
+    var n = window.location.search.split('n=')[1];
+    var filter = window.location.search.split('filter=')[1];
+
+    if (page == undefined) {
+      page = 1;
+    } else {
+      page = parseInt(page);
+    }
+
+    if (n == undefined) {
+      n = 12;
+    } else {
+      n = parseInt(n);
+    }
+
+    window.location.href = "/?page=" + page + "&n=" + n + "&filter=" + newFilter;
+  }
+
+  function getProduct(pid) {
+    window.location.href = "/product?id=" + pid;
+  }
+
+  function search() {
+    var search = document.getElementById("search-bar").value;
+    window.location.href = "/?search=" + search;
+  }
+</script>
 
 {% endblock %}
