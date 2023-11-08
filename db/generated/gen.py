@@ -2,9 +2,9 @@ from werkzeug.security import generate_password_hash
 import csv
 from faker import Faker
 
-num_users = 100
-num_products = 2000
-num_purchases = 2500
+num_users = 200
+num_products = 4000
+num_purchases = 5000
 num_reviews = 100
 
 Faker.seed(0)
