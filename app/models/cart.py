@@ -3,8 +3,8 @@ from flask import current_app as app
 
 
 class Cart:
-    def __init__(self, id, uid, pid):
-        self.id = id
+    def __init__(self, uid, pid):
+        #self.id = id
         self.uid = uid
         self.pid = pid
 
@@ -18,3 +18,15 @@ WHERE Carts.uid = :uid AND Carts.proid = Products.id
 ''',
                               uid=uid)
         return [Product(*row) for row in rows]
+    
+    #write a sql to add a row to the current cart
+    #take in current user ID, add a row in the cart
+    @staticmethod
+    def add_to_cart(uid, pid):
+        app.db.execute('''
+        INSERT INTO Carts(uid, proid)
+        VALUES(:uid, :pid)
+        ''', 
+        uid=uid,
+        pid=pid)
+        return

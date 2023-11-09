@@ -77,8 +77,9 @@
 </table>
 
 <script>
-    function addToCart(name) {
-      alert("Added product " + name + " to cart!");
+    function addToCart(pid) {
+      window.location.href = "/carts/" + pid;
+      alert("Added product " + pid + " to cart!");
     }
 
     const activeImage = document.querySelector(".product-image .active");
