@@ -29,6 +29,7 @@
               <p>{{product.description_long}}</p>
             </div>
             <button class="add-to-cart" onclick="addToCart({{product.id}})">Add To Cart</button>
+            <button class="add-to-cart" onclick="writeReview({{ product.id }})">Write a Review</button> 
           </div>
         </div>
       {% endfor %}
@@ -95,6 +96,62 @@
 
     productImages.forEach(image => image.addEventListener("click", changeImage));
     navItem.addEventListener('click', toggleNavigation);
+
+
+    function writeReview(productId) {
+    // Use prompt to get the rating
+    var rating = prompt("Please enter your rating (1-5):", "");
+    // Use prompt to get the review text
+    var review = prompt("Please enter your review:", "");
+
+    // Check if both rating and review are provided
+    if (rating && review) {
+        // Ask for confirmation before submitting
+        var isConfirmed = confirm("Are you sure you want to submit your review?");
+        
+        if (isConfirmed) {
+            // Prepare the data to be sent to the server
+            var reviewData = {
+                user_id: 1, //current_user.id, // Assuming you have access to current_user's ID
+                product_id: 1, // productId,
+                rating: rating,
+                comment: review
+            };
+
+            // Make an AJAX POST request to submit the review
+            fetch('/submit_review', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(reviewData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // If the review was successfully submitted
+                    alert("Your review has been submitted.");
+                    // Redirect to the reviews page
+                    window.location.href = "http://localhost:8080/reviews";
+                } else {
+                    // If there was an error submitting the review
+                    alert("Error submitting review: " + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert("An error occurred while submitting your review.");
+            });
+        } else {
+            // Handle the case where the user decides not to submit the review
+            alert("Your review was not submitted.");
+        }
+    } else {
+        // Handle the case where the user leaves the prompt empty or clicks cancel
+        alert("You must enter both a rating and a review to submit.");
+    }
+}
+
 </script>
 
 {% endblock %}

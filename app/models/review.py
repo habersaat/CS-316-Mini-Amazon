@@ -22,3 +22,33 @@ LIMIT 5
 ''',
                               uid=uid)
         return [Review(*row) for row in rows]
+    
+
+    @staticmethod
+    def find_by_user_and_product(user_id, product_id):
+        rows = app.db.execute('''
+SELECT review_id
+FROM Review
+WHERE user_id = :user_id AND product_id = :product_id
+''',
+                              user_id=user_id,
+                              product_id=product_id)
+        return rows
+
+    @staticmethod
+    def create_review(product_id, user_id, rating, comment):
+        # This method will create a new review after checking if one doesn't already exist
+        existing_review = Review.find_by_user_and_product(user_id, product_id)
+        if existing_review:
+            raise ValueError("User has already reviewed this product.")
+        
+        result = app.db.execute('''
+INSERT INTO Review (product_id, user_id, rating, comment)
+VALUES (:product_id, :user_id, :rating, :comment)
+RETURNING review_id
+''',
+                                product_id=product_id,
+                                user_id=user_id,
+                                rating=rating,
+                                comment=comment)
+        return result
