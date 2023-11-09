@@ -38,6 +38,7 @@ def login():
     return render_template('login.html', title='Sign In', form=form)
 
 
+
 class RegistrationForm(FlaskForm):
     firstname = StringField('First Name', validators=[DataRequired()])
     lastname = StringField('Last Name', validators=[DataRequired()])
@@ -72,3 +73,48 @@ def register():
 def logout():
     logout_user()
     return redirect(url_for('index.index'))
+
+class UpdateForm(FlaskForm):
+    email = StringField('Email', validators=[DataRequired(), Email()])
+    firstname = StringField('First Name', validators=[DataRequired()])
+    lastname = StringField('Last Name', validators=[DataRequired()])
+    address = StringField('Address', validators=[DataRequired()])
+    submit = SubmitField('Update')
+
+import psycopg2
+
+@bp.route('/update', methods=['GET', 'POST'])
+def update():
+    if not current_user.is_authenticated:
+        return redirect(url_for('users.login'))
+    form = UpdateForm()
+    if form.validate_on_submit():
+        # update user's information
+        current_user.email = form.email.data
+        current_user.firstname = form.firstname.data
+        current_user.lastname = form.lastname.data
+        current_user.address = form.address.data
+
+        # connected to PostgreSQL db
+        conn = psycopg2.connect(database="amazon", user="your_username", password="your_password", host="localhost", port="5432")
+        # create a Cursor
+        c = conn.cursor()
+
+        # execute//?
+        c.execute("""
+UPDATE Users
+SET email = %s, firstname = %s, lastname = %s, address = %s
+WHERE id = %s
+""", (current_user.email, current_user.firstname, current_user.lastname, current_user.address, current_user.id))
+
+        # commit
+        conn.commit()
+
+        flash('Your changes have been saved.')
+        return redirect(url_for('users.update'))
+    elif request.method == 'GET':
+        form.email.data = current_user.email
+        form.firstname.data = current_user.firstname
+        form.lastname.data = current_user.lastname
+        form.address.data = current_user.address
+    return render_template('update.html', title='Edit Profile', form=form)
