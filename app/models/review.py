@@ -22,6 +22,7 @@ LIMIT 5
 ''',
                               uid=uid)
         return [Review(*row) for row in rows]
+
     
 
     @staticmethod
@@ -52,3 +53,31 @@ RETURNING review_id
                                 rating=rating,
                                 comment=comment)
         return result
+
+    @staticmethod
+    def get_paginated_reviews(page, per_page=10, user_id=None):
+        offset = (page - 1) * per_page
+        query = '''
+SELECT review_id, product_id, user_id, rating, comment, timestamp, upvotes
+FROM Review
+'''
+        params = {
+            'per_page': per_page,
+            'offset': offset
+        }
+        if user_id:
+            query += 'WHERE user_id = :user_id\n'
+            params['user_id'] = user_id
+        query += 'ORDER BY timestamp DESC\nLIMIT :per_page OFFSET :offset'
+        rows = app.db.execute(query, **params)
+        return [Review(*row) for row in rows]
+
+    @staticmethod
+    def count_all_reviews(user_id=None):
+        query = 'SELECT COUNT(*) FROM Review'
+        params = {}
+        if user_id:
+            query += ' WHERE user_id = :user_id'
+            params['user_id'] = user_id
+        rows = app.db.execute(query, **params)
+        return rows[0][0] if rows else 0

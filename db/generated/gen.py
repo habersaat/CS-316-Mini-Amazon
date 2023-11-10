@@ -16,7 +16,7 @@ def get_csv_writer(f):
 
 
 def gen_users(num_users):
-    with open('Users.csv', 'w') as f:
+    with open('db/generated/Users.csv', 'w') as f:
         writer = get_csv_writer(f)
         print('Users...', end=' ', flush=True)
         for uid in range(num_users):
@@ -36,7 +36,7 @@ def gen_users(num_users):
 
 def gen_products(num_products):
     available_pids = []
-    with open('ProductsGen2.csv', 'w') as f:
+    with open('db/generated/ProductsGen2.csv', 'w') as f:
         writer = get_csv_writer(f)
         print('Products...', end=' ', flush=True)
         for pid in range(num_products):
@@ -57,7 +57,7 @@ def gen_products(num_products):
 
 
 def gen_purchases(num_purchases, available_pids):
-    with open('Purchases.csv', 'w') as f:
+    with open('db/generated/Purchases.csv', 'w') as f:
         writer = get_csv_writer(f)
         print('Purchases...', end=' ', flush=True)
         for id in range(num_purchases):
@@ -71,7 +71,7 @@ def gen_purchases(num_purchases, available_pids):
     return
 
 def gen_carts(num_cart_items, available_pids):
-    with open('Carts.csv', 'w') as f:
+    with open('db/generated/Carts.csv', 'w') as f:
         writer = get_csv_writer(f)
         print('Carts...', end=' ', flush=True)
         for id in range(num_cart_items):
@@ -83,13 +83,13 @@ def gen_carts(num_cart_items, available_pids):
         print(f'{num_cart_items} generated')
 
 def gen_reviews(num_reviews, available_pids):
-    with open('Reviews.csv', 'w') as f:
+    with open('db/generated/ReviewsGen.csv', 'w') as f:
         writer = get_csv_writer(f)
         print('Reviews...', end=' ', flush=True)
         for id in range(num_reviews):
             if id % 100 == 0:
                 print(f'{id}', end=' ', flush=True)
-            uid = fake.random_int(min=0, max=num_users-1)
+            uid = 0 # fake.random_int(min=0, max=num_users-1)
             pid = fake.random_element(elements=available_pids)
             rating = fake.random_int(min=1, max=5)
             comment = fake.sentence(nb_words=10)

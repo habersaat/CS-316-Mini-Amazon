@@ -96,8 +96,9 @@
 
     productImages.forEach(image => image.addEventListener("click", changeImage));
     navItem.addEventListener('click', toggleNavigation);
+  </script>
 
-
+  <script>
     function writeReview(productId) {
     // Use prompt to get the rating
     var rating = prompt("Please enter your rating (1-5):", "");
@@ -113,7 +114,7 @@
             // Prepare the data to be sent to the server
             var reviewData = {
                 user_id: 1, //current_user.id, // Assuming you have access to current_user's ID
-                product_id: 1, // productId,
+                product_id: productId, // productId,
                 rating: rating,
                 comment: review
             };
