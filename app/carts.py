@@ -31,3 +31,11 @@ def addToCart(pid):
     Cart.add_to_cart(uid, pid)
     cart_items = Cart.items_by_uid(uid)
     return render_template('carts.html', title = "My Cart", form=form, cart_items=cart_items)
+
+@bp.route('/carts/delete/<pid>', methods = ['GET', 'DELETE'])
+def delete_item(pid):
+    form = CartsForm()
+    uid = current_user.id
+    Cart.delete_from_cart(uid, pid)
+    cart_items = Cart.items_by_uid(uid)
+    return render_template('carts.html', title = "My Cart", form=form, cart_items=cart_items)
