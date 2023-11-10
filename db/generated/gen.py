@@ -6,6 +6,7 @@ num_users = 200
 num_products = 4000
 num_purchases = 5000
 num_reviews = 100
+num_inventory = 200
 
 Faker.seed(0)
 fake = Faker()
@@ -98,9 +99,31 @@ def gen_reviews(num_reviews, available_pids):
             writer.writerow([id, pid, uid, rating, comment, timestamp, upvotes])
         print(f'{num_reviews} generated')
 
+def gen_inventory(num_inventory, available_pids, num_users):
+    with open('Inventory.csv', 'w') as f:
+        writer = get_csv_writer(f)
+        print('Inventory...', end=' ', flush=True)
+        for inventory_id in range(num_inventory):
+            if inventory_id % 100 == 0:
+                print(f'{inventory_id}', end=' ', flush=True)
+            sid = fake.random_int(min=0, max=num_users-1)  
+            pid = fake.random_element(elements=available_pids)
+            quantity = fake.random_int(min=0, max=100) 
+            available = fake.boolean() 
+            writer.writerow([inventory_id, sid, pid, quantity, available])
+        print(f'{num_inventory} generated')
 
-gen_users(num_users)
-available_pids = gen_products(num_products)
-gen_purchases(num_purchases, available_pids)
-gen_carts(num_purchases, available_pids)
-gen_reviews(num_reviews, available_pids)
+
+def main():
+    num_inventory = 10000  # Or however many inventory items you want to generate
+    num_users = 200  # This should match the number you used in gen_users
+    available_pids = gen_products(num_products)  # This should be the list of available product IDs
+
+    gen_users(num_users)
+    gen_purchases(num_purchases, available_pids)
+    gen_carts(num_purchases, available_pids)
+    gen_reviews(num_reviews, available_pids)
+    gen_inventory(num_inventory, available_pids, num_users)  # Pass the required arguments here
+
+if __name__ == "__main__":
+    main()
