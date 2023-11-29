@@ -44,20 +44,37 @@ def index():
         # products = Product.get_k_page_of_n(currentPage, n)
         # products = Product.get_all(True)
 
-        if request.args.get('filter') == 'price_asc':
-            products = Product.get_k_page_of_n_price_asc(currentPage, n)
-        elif request.args.get('filter') == 'price_desc':
-            products = Product.get_k_page_of_n_price_desc(currentPage, n)
-        elif request.args.get('filter') == 'name_asc':
-            products = Product.get_k_page_of_n_name_asc(currentPage, n)
-        elif request.args.get('filter') == 'name_desc':
-            products = Product.get_k_page_of_n_name_desc(currentPage, n)
-        elif request.args.get('filter') == 'rating_asc':
-            products = Product.get_k_page_of_n_rating_asc(currentPage, n)
-        elif request.args.get('filter') == 'rating_desc':
-            products = Product.get_k_page_of_n_rating_desc(currentPage, n)
+        if request.args.get('query') is not None:
+            if request.args.get('filter') == 'price_asc':
+                products = Product.get_k_page_of_n_with_search_price_asc(currentPage, n, request.args.get('query'))
+            elif request.args.get('filter') == 'price_desc':
+                products = Product.get_k_page_of_n_with_search_price_desc(currentPage, n, request.args.get('query'))
+            elif request.args.get('filter') == 'name_asc':
+                products = Product.get_k_page_of_n_with_search_name_asc(currentPage, n, request.args.get('query'))
+            elif request.args.get('filter') == 'name_desc':
+                products = Product.get_k_page_of_n_with_search_name_desc(currentPage, n, request.args.get('query'))
+            elif request.args.get('filter') == 'rating_asc':
+                products = Product.get_k_page_of_n_with_search_rating_asc(currentPage, n, request.args.get('query'))
+            elif request.args.get('filter') == 'rating_desc':
+                products = Product.get_k_page_of_n_with_search_rating_desc(currentPage, n, request.args.get('query'))
+            else:
+                products = Product.get_k_page_of_n_with_search(currentPage, n, request.args.get('query'))
+
         else:
-            products = Product.get_k_page_of_n(currentPage, n)
+            if request.args.get('filter') == 'price_asc':
+                products = Product.get_k_page_of_n_price_asc(currentPage, n)
+            elif request.args.get('filter') == 'price_desc':
+                products = Product.get_k_page_of_n_price_desc(currentPage, n)
+            elif request.args.get('filter') == 'name_asc':
+                products = Product.get_k_page_of_n_name_asc(currentPage, n)
+            elif request.args.get('filter') == 'name_desc':
+                products = Product.get_k_page_of_n_name_desc(currentPage, n)
+            elif request.args.get('filter') == 'rating_asc':
+                products = Product.get_k_page_of_n_rating_asc(currentPage, n)
+            elif request.args.get('filter') == 'rating_desc':
+                products = Product.get_k_page_of_n_rating_desc(currentPage, n)
+            else:
+                products = Product.get_k_page_of_n(currentPage, n)
 
     # find the products current user has bought:
     if current_user.is_authenticated:
