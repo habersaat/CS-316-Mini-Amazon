@@ -136,6 +136,125 @@ OFFSET :k ROWS FETCH NEXT :n ROWS ONLY
                             available=available)
         return [Product(*row) for row in rows]
 
+# Parameterized queries so not vulnerable to SQL injection
+    @staticmethod
+    def get_k_page_of_n_with_search(k, n, search, available=True):
+        k *= n
+        rows = app.db.execute('''
+SELECT id, name, description_short, description_long, rating, image_url, price, available
+FROM Products
+WHERE available = :available AND
+LOWER(name) LIKE LOWER(:search)
+OFFSET :k ROWS FETCH NEXT :n ROWS ONLY
+''',
+                            k=k,
+                            n=n,
+                            search='%' + search + '%',
+                            available=available)
+        return [Product(*row) for row in rows]
+
+    @staticmethod
+    def get_k_page_of_n_with_search_price_asc(k, n, search, available=True):
+        k *= n
+        rows = app.db.execute('''
+SELECT id, name, description_short, description_long, rating, image_url, price, available
+FROM Products
+WHERE available = :available AND
+LOWER(name) LIKE LOWER(:search)
+ORDER BY price ASC
+OFFSET :k ROWS FETCH NEXT :n ROWS ONLY
+''',
+                            k=k,
+                            n=n,
+                            search='%' + search + '%',
+                            available=available)
+        return [Product(*row) for row in rows]
+    
+    @staticmethod
+    def get_k_page_of_n_with_search_price_desc(k, n, search, available=True):
+        k *= n
+        rows = app.db.execute('''
+SELECT id, name, description_short, description_long, rating, image_url, price, available
+FROM Products
+WHERE available = :available AND
+LOWER(name) LIKE LOWER(:search)
+ORDER BY price DESC
+OFFSET :k ROWS FETCH NEXT :n ROWS ONLY
+''',
+                            k=k,
+                            n=n,
+                            search='%' + search + '%',
+                            available=available)
+        return [Product(*row) for row in rows]
+    
+    @staticmethod
+    def get_k_page_of_n_with_search_name_asc(k, n, search, available=True):
+        k *= n
+        rows = app.db.execute('''
+SELECT id, name, description_short, description_long, rating, image_url, price, available
+FROM Products
+WHERE available = :available AND
+LOWER(name) LIKE LOWER(:search)
+ORDER BY name ASC
+OFFSET :k ROWS FETCH NEXT :n ROWS ONLY
+''',
+                            k=k,
+                            n=n,
+                            search='%' + search + '%',
+                            available=available)
+        return [Product(*row) for row in rows]
+    
+    @staticmethod
+    def get_k_page_of_n_with_search_name_desc(k, n, search, available=True):
+        k *= n
+        rows = app.db.execute('''
+SELECT id, name, description_short, description_long, rating, image_url, price, available
+FROM Products
+WHERE available = :available AND
+LOWER(name) LIKE LOWER(:search)
+ORDER BY name DESC
+OFFSET :k ROWS FETCH NEXT :n ROWS ONLY
+''',
+                            k=k,
+                            n=n,
+                            search='%' + search + '%',
+                            available=available)
+        return [Product(*row) for row in rows]
+    
+    @staticmethod
+    def get_k_page_of_n_with_search_rating_asc(k, n, search, available=True):
+        k *= n
+        rows = app.db.execute('''
+SELECT id, name, description_short, description_long, rating, image_url, price, available
+FROM Products
+WHERE available = :available AND
+LOWER(name) LIKE LOWER(:search)
+ORDER BY rating ASC
+OFFSET :k ROWS FETCH NEXT :n ROWS ONLY
+''',
+                            k=k,
+                            n=n,
+                            search='%' + search + '%',
+                            available=available)
+        return [Product(*row) for row in rows]
+    
+    @staticmethod
+    def get_k_page_of_n_with_search_rating_desc(k, n, search, available=True):
+        k *= n
+        rows = app.db.execute('''
+SELECT id, name, description_short, description_long, rating, image_url, price, available
+FROM Products
+WHERE available = :available AND
+LOWER(name) LIKE LOWER(:search)
+ORDER BY rating DESC
+OFFSET :k ROWS FETCH NEXT :n ROWS ONLY
+''',
+                            k=k,
+                            n=n,
+                            search='%' + search + '%',
+                            available=available)
+        return [Product(*row) for row in rows]
+
     @staticmethod
     def k_most_expensive(k):
         rows = app.db.execute('''
@@ -156,5 +275,3 @@ LIMIT :k
         ''',
                                 id=id)
         return [Product(*row) for row in rows]
-    
-    

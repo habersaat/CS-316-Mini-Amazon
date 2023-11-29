@@ -39,8 +39,16 @@
         </div>
       </div>
 
-      <input type="text" id="search-bar" placeholder="What are you looking for?">
+      <input type="text" id="search-bar" name="query" placeholder="What are you looking for?">
       <img class="search-icon" src="http://www.endlessicons.com/wp-content/uploads/2012/12/search-icon.png">
+
+      <!-- <p>
+        <label for="fname">Sort by: Top k Most Expensive</label><br>
+        <input type="text" id="price_desc" name="price_desc"><br>
+      </p>
+      <p>
+        <input type="submit" value="Submit">
+      </p> -->
 
       <div class="page-buttons">
         <a href="#" onclick="prevPage()" class="previous">&laquo; Previous</a>
@@ -147,24 +155,36 @@
     var page = window.location.search.split('page=')[1];
     page = parseInt(page);
     var filter = window.location.search.split('filter=')[1];
+    var query = window.location.search.split('query=')[1];
 
     if (page == undefined) {
       page = 1;
     } else {
       page = parseInt(page);
     }
-
-    if (filter == undefined) {
-      window.location.href = "/?page=" + 1 + "&n=" + newN;
-    } else {
-      window.location.href = "/?page=" + 1 + "&n=" + newN + "&filter=" + filter;
+    
+    if (query == undefined) {
+      if (filter == undefined) {
+        window.location.href = "/?page=" + 1 + "&n=" + newN;
+      } else {
+        window.location.href = "/?page=" + 1 + "&n=" + newN + "&filter=" + filter;
+      }
     }
+    else {
+      if (filter == undefined) {
+        window.location.href = "/?page=" + 1 + "&n=" + newN + "&query=" + query;
+      } else {
+        window.location.href = "/?page=" + 1 + "&n=" + newN + "&filter=" + filter + "&query=" + query;
+      }
+    }
+
   }
 
   function sortBy(newFilter) {
     var page = window.location.search.split('page=')[1];
     var n = window.location.search.split('n=')[1];
     var filter = window.location.search.split('filter=')[1];
+    var query = window.location.search.split('query=')[1];
 
     if (page == undefined) {
       page = 1;
@@ -178,7 +198,11 @@
       n = parseInt(n);
     }
 
-    window.location.href = "/?page=" + page + "&n=" + n + "&filter=" + newFilter;
+    if (query == undefined) {
+      window.location.href = "/?page=" + page + "&n=" + n + "&filter=" + newFilter;
+    } else {
+      window.location.href = "/?page=" + page + "&n=" + n + "&filter=" + newFilter + "&query=" + query;
+    }
   }
 
   function getProduct(pid) {
