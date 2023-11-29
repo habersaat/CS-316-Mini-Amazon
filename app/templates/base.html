@@ -715,6 +715,9 @@
 <body>
   <nav class="navbar navbar-expand-custom navbar-mainbg">
       <a class="navbar-brand navbar-logo" href="/">Mini-Amazon</a>
+      {% if current_user.is_authenticated %}
+        <p style="color: white; text-align: center; position: relative; top: 10px;">Welcome, {{current_user.firstname}}!</p>
+      {%endif%}
       <button class="navbar-toggler" type="button" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
       <i class="fas fa-bars text-white"></i>
       </button>
