@@ -2,6 +2,8 @@ from flask import current_app as app
 from flask_login import current_user
 
 from .user import User
+
+# Product class
 class Product:
     def __init__(self, id, name, description_short, description_long, category, rating, image_url, price, available, low_stock, shipping_speed=None):
         self.id = id
@@ -16,6 +18,7 @@ class Product:
         self.low_stock = low_stock
         self.shipping_speed = shipping_speed
 
+    # get a product by its id
     @staticmethod
     def get(id):
         rows = app.db.execute('''
@@ -26,6 +29,7 @@ WHERE id = :id
                               id=id)
         return Product(*(rows[0])) if rows is not None else None
 
+    # get all products by their availability
     @staticmethod
     def get_all(available=True):
         rows = app.db.execute('''
@@ -36,6 +40,7 @@ WHERE available = :available
                               available=available)
         return [Product(*row) for row in rows]
 
+    # get all products that have a matching tag assigned to them
     @staticmethod
     def get_by_matching_tag(query, available=True):
         rows = app.db.execute('''
@@ -51,6 +56,7 @@ WHERE id IN (
                               available=available)
         return [Product(*row) for row in rows]
 
+    # get the kth page of size n according to the given filter, order, category, and query
     @staticmethod
     def get_k_page_of_n(k, n, ftr=None, ord=None, cat=None, query=None, available=True): 
         # Get list of products that match the query string or are tagged with the query string
@@ -78,6 +84,7 @@ OFFSET :k ROWS FETCH NEXT :n ROWS ONLY
                               n=n)
         return [Product(*row) for row in rows]
     
+    # get the length of the query result (not paginated)
     @staticmethod
     def get_query_length(ftr=None, ord=None, cat=None, query=None, available=True):
         rows = app.db.execute('''
@@ -101,7 +108,7 @@ WHERE id IN (
             return rows[0][0]
         return rows[0][0] + rows[1][0]
     
-        
+    # get the k most expensive products
     @staticmethod
     def k_most_expensive(k):
         rows = app.db.execute('''
@@ -113,6 +120,7 @@ LIMIT :k
                               k=k)
         return [Product(*row) for row in rows]
     
+    # retrieve all info about a product by its id
     @staticmethod
     def get_all_info_by_id(id):
         rows = app.db.execute('''
@@ -123,6 +131,7 @@ LIMIT :k
                                 id=id)
         return [Product(*row) for row in rows]
     
+    # update the product rating. necessary after a review is added or deleted
     @staticmethod
     def update_product_rating(id):
 
@@ -138,8 +147,10 @@ LIMIT :k
         if rating is None:
             rating = 0
 
+        # Print the new rating
         print(f'Updating product {id} rating to {rating}')
 
+        # Update the rating column in the Products table
         rows = app.db.execute('''
         UPDATE Products
         SET rating = :rating
@@ -149,8 +160,10 @@ LIMIT :k
                                 rating=rating)
         return rows
     
+    # initialize product ratings by calculating the average rating for each product
     @staticmethod
     def product_rating_init():
+        # Print message for debugging purposes
         print("Initializing product ratings...")
 
         # calculate average rating for each product and update the rating column in the Products table
@@ -162,6 +175,7 @@ LIMIT :k
             Product.update_product_rating(row[0])
         return
     
+    # set a product's low_stock column to True or False
     @staticmethod
     def set_product_low_stock(id, low_stock=True):
         rows = app.db.execute('''
@@ -173,6 +187,7 @@ LIMIT :k
                                 low_stock=low_stock)
         return rows
     
+    # count how many of a product are in stock across all sellers
     @staticmethod
     def count_product_quantity(id):
         rows = app.db.execute('''
@@ -183,6 +198,7 @@ LIMIT :k
                                 id=id)
         return rows[0][0]
 
+    # update a product's availability
     @staticmethod
     def update_product_availability(id, available):
         rows = app.db.execute('''
@@ -202,6 +218,7 @@ LIMIT :k
 
         return rows
     
+    # update a product's price
     @staticmethod
     def update_product_price(id):
         # Update product price based on lowest price in Inventory table
@@ -213,11 +230,13 @@ LIMIT :k
                                 id=id)
         price = rows[0][0]
 
+        # if price is None, set price to 0 and set product to unavailable
         if price is None:
             price = 0
             # Set product to unavailable if no price is found
             Product.update_product_availability(id, False)
         else:
+            # Print the new price for debugging purposes
             print(f'Updating product {id} price to {price}')
 
             # First, get the column of the lowest price in the Inventory table
@@ -245,21 +264,28 @@ LIMIT :k
                                     category=category,
                                     image_url=image_url)
             
+            # Update product availability
             Product.update_product_availability(id, True)
+
+            # Update shipping speed if user is logged in
             if current_user.is_authenticated:
                 Product.update_shipping_speed(id, current_user.longitude, current_user.latitude)
         return rows
 
+    # initialize product prices by calculating the lowest price for each product
     @staticmethod
     def inventory_init():
+        # Print message for debugging purposes
         print("Initializing inventory...")
         rows = app.db.execute('''
         SELECT id
         FROM Products
         ''')
+
+        # Update product price for each product
         for row in rows:
             Product.update_product_price(row[0])
-            # Set product to low stock if quantity is less than or equal to 10
+            # Set product to low stock if quantity is less than or equal to 100
             cnt = Product.count_product_quantity(row[0])
             if cnt is None or cnt > 100:
                 Product.set_product_low_stock(row[0], False)
@@ -268,6 +294,7 @@ LIMIT :k
             
         return
     
+    # get the seller id of the cheapest product
     @staticmethod
     def get_sid_of_cheapest_product(pid):
         rows = app.db.execute('''
@@ -282,6 +309,7 @@ LIMIT :k
             return None
         return rows[0][0]
     
+    # calculate the distance between two latitude/longitude pairs
     @staticmethod
     def calculate_distance(lat1, lon1, lat2, lon2):
         # Calculate distance between two points using the Haversine formula
@@ -299,13 +327,19 @@ LIMIT :k
         km = 6371* c
         return km
     
+    # get the shipping speed of a product
     @staticmethod
     def get_shipping_speed(pid, lat, lon):
+        # Get the seller's location
         sid = Product.get_sid_of_cheapest_product(pid)
         loc = User.get_location(sid)
+
+        # Calculate distance between seller and buyer
         lat1 = loc[0]
         lon1 = loc[1]
         dist = Product.calculate_distance(lat, lon, lat1, lon1)
+
+        # Return the shipping speed based on the distance
         if dist < 6500:
             return "2 days"
         elif dist < 9500:
@@ -315,6 +349,7 @@ LIMIT :k
         else:
             return "10 days"
         
+    # update the shipping speed of a product
     @staticmethod
     def update_shipping_speed(pid, lon, lat):
         rows = app.db.execute('''
@@ -326,16 +361,16 @@ LIMIT :k
                                 shipping_speed=Product.get_shipping_speed(pid, lon, lat))
         return rows
         
+    # initialize shipping speeds by calculating the shipping speed for each product based on the seller's location and the user's location
     @staticmethod
     def shipping_speed_init(lon, lat):
-        print("Initializing shipping speed...")
-        print("My longitude is: ", lon)
-        print("My latitude is: ", lat)
         rows = app.db.execute('''
         SELECT id
         FROM Products
         WHERE available = True
         ''')
+
+        # Update shipping speed for each product
         for row in rows:
             Product.update_shipping_speed(row[0], lon, lat)
         return

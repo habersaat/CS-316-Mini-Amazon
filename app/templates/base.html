@@ -8,16 +8,15 @@
   <script src="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/example.css') }}">
   <style>
-    /* body {
-        font-family: "Lato", sans-serif;
-    } */
 
+    /* table styling */
     .table .thead-dark th {
         color: #fff;
         background-color: #5161ce;
         border-color: #5161ce;
     }
 
+    /* general header and main page styling */
     .main-head {
         height: 150px;
         background: #FFF;
@@ -44,6 +43,7 @@
         font-weight: 300;
     }
 
+    /* Navbar styling */
     @import url('https://fonts.googleapis.com/css?family=Roboto');
 
     body{
@@ -91,6 +91,7 @@
         position: relative;
     }
 
+    /* Navbar animations which have been disabled */
     @media(min-width: 992px){
       .navbar-expand-custom {
           -ms-flex-flow: row nowrap;
@@ -112,7 +113,6 @@
           flex-basis: auto;
       }
     }
-
 
     @media (max-width: 991px){
       #navbarSupportedContent ul li a{
@@ -146,6 +146,7 @@
       }
     }
 
+    /* Button styling across pages */
     .btn-black {
         background-color: #000 !important;
         color: #fff;
@@ -161,6 +162,7 @@
       color: black;
     }
     
+    /* Index page buttons */
     .previous {
       background-color: #f1f1f1;
       color: black;
@@ -238,6 +240,8 @@
       background-color: #ddd;
     }
 
+    /* filter buttons and search bar styling */
+
     .filter-buttons{
       position: relative;
       display: inline-block;
@@ -286,6 +290,8 @@
       top: -10px;
       right: 460px;
     }
+
+    /* Product cards styling */
 
     @import url('https://fonts.googleapis.com/css?family=Cardo:400i|Rubik:400,700&display=swap');
     :root {
@@ -615,6 +621,8 @@
       transform-origin: 0 50%;
       transition: transform 0.3s ease-out;
     }
+
+    /* Write review button */
     .write-review {
       position: relative;
       display: inline-block;
@@ -646,6 +654,8 @@
       transform-origin: 0 50%;
       transition: transform 0.3s ease-out;
     }
+
+    /* More product page styling */
     .prod-container {
       margin: auto;
       padding: 0 1rem;
@@ -741,6 +751,8 @@
       }
     }
 
+    /* Index categories styling */
+
     .categories {
       width: 100%;
       overflow: hidden;
@@ -754,6 +766,7 @@
       margin-right: 10px;
     }
 
+    /* Seller product form styling */
 
     .new-product-form-container {
       width: 100%;
@@ -770,6 +783,7 @@
       margin-top: 2rem;
     }
 
+    /* Comments section styling */
 
     @import url(https://fonts.googleapis.com/css?family=Lato:300,400);
     @import url(https://maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css);
@@ -855,6 +869,8 @@
       color: #555;
     }
 
+    /* Tags styling */
+
     .tags {
       margin-top: 2rem;
     }
@@ -898,21 +914,6 @@
           </ul>
       </div>
   </nav>
-  <!-- <div class="sidenav">
-    {% block msg %}
-      <h1 style="color:aliceblue">Welcome to CompSci 316 Mini Amazon!</h1>
-*      <div style="color: aliceblue; text-align: right; margin-bottom: 25px">
-        {% if current_user.is_authenticated %}
-          Hello {{current_user.firstname}}! <a href="{{ url_for('users.logout') }}" type="button" class="btn btn-light">Log out</a>
-          <a href = "/carts" type = "button" class="btn btn-light">Cart</a>
-        {% else %}
-          <a href="{{ url_for('users.login') }}" type="button" class="btn btn-light">Log in</a>
-          <a href = "/carts" type = "button" class="btn btn-light">Cart</a>
-          <a href = "/purchases" type = "button" class="btn btn-light">Purchase History</a>
-        {% endif %}
-      </div>
-    {% endblock %}
-  </div> -->
   <div class="main">
     {% block content %}{% endblock %}
   </div>
