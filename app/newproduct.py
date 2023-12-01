@@ -14,7 +14,7 @@ bp = Blueprint('newproduct', __name__)
 # New Product Form
 class NewProductForm(FlaskForm):
     userID = IntegerField('Product ID', validators=[DataRequired()])
-    submit = SubmitField('Submit'
+    submit = SubmitField('Submit')
     productname = StringField('Product Name', validators=[DataRequired()])
     shortdescription = TextAreaField('Short Description', validators=[DataRequired()])
     longdescription = TextAreaField('Long Description', validators=[DataRequired()])
