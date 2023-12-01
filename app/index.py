@@ -8,9 +8,21 @@ from .models.purchase import Purchase
 from flask import Blueprint
 bp = Blueprint('index', __name__) 
 
+visits = 0
+
 # Create index that gives the top k most expensive products which are passed in through a form submit
 @bp.route('/', methods=['GET', 'POST'])
 def index():
+
+    global visits
+    visits += 1
+    print(f'visits: {visits}')
+
+    if visits == 1:
+        Product.product_rating_init() # Can comment out for faster loading
+        Product.inventory_init() # Can comment out for faster loading
+        # Product.shipping_speed_init(current_user.longitude, current_user.latitude)
+
     # get the k value from the url parameters. For reference, the url looks like: /price_desc?k=5
     k = request.args.get('price_desc')
 
@@ -35,7 +47,7 @@ def index():
         # ensure k is a positive integer
         if k < 0:
             flash('k must be a positive integer')
-            return redirect(url_for('index.index_post'))
+            return redirect(url_for('index.index'))
 
         # get the k most expensive products
         products = Product.k_most_expensive(k)
@@ -43,38 +55,21 @@ def index():
     else:
         # products = Product.get_k_page_of_n(currentPage, n)
         # products = Product.get_all(True)
-
-        if request.args.get('query') is not None:
-            if request.args.get('filter') == 'price_asc':
-                products = Product.get_k_page_of_n_with_search_price_asc(currentPage, n, request.args.get('query'))
-            elif request.args.get('filter') == 'price_desc':
-                products = Product.get_k_page_of_n_with_search_price_desc(currentPage, n, request.args.get('query'))
-            elif request.args.get('filter') == 'name_asc':
-                products = Product.get_k_page_of_n_with_search_name_asc(currentPage, n, request.args.get('query'))
-            elif request.args.get('filter') == 'name_desc':
-                products = Product.get_k_page_of_n_with_search_name_desc(currentPage, n, request.args.get('query'))
-            elif request.args.get('filter') == 'rating_asc':
-                products = Product.get_k_page_of_n_with_search_rating_asc(currentPage, n, request.args.get('query'))
-            elif request.args.get('filter') == 'rating_desc':
-                products = Product.get_k_page_of_n_with_search_rating_desc(currentPage, n, request.args.get('query'))
-            else:
-                products = Product.get_k_page_of_n_with_search(currentPage, n, request.args.get('query'))
-
+        query = request.args.get('query')
+        fil = request.args.get('filter')
+        if fil is not None:
+            fil, order = fil.split('_')
         else:
-            if request.args.get('filter') == 'price_asc':
-                products = Product.get_k_page_of_n_price_asc(currentPage, n)
-            elif request.args.get('filter') == 'price_desc':
-                products = Product.get_k_page_of_n_price_desc(currentPage, n)
-            elif request.args.get('filter') == 'name_asc':
-                products = Product.get_k_page_of_n_name_asc(currentPage, n)
-            elif request.args.get('filter') == 'name_desc':
-                products = Product.get_k_page_of_n_name_desc(currentPage, n)
-            elif request.args.get('filter') == 'rating_asc':
-                products = Product.get_k_page_of_n_rating_asc(currentPage, n)
-            elif request.args.get('filter') == 'rating_desc':
-                products = Product.get_k_page_of_n_rating_desc(currentPage, n)
-            else:
-                products = Product.get_k_page_of_n(currentPage, n)
+            order = None
+        category = request.args.get('category')
+
+        products = Product.get_k_page_of_n(currentPage, n, fil, order, category, query)
+
+        # get the stock of each product
+        for product in products:
+            product.stock = Product.count_product_quantity(product.id)
+
+        length = Product.get_query_length(fil, order, category, query)
 
     # find the products current user has bought:
     if current_user.is_authenticated:
@@ -85,5 +80,6 @@ def index():
     # render the page by adding information to the index.html file
     return render_template('index.html',
                         avail_products=products,
+                        res=length,
                         purchase_history=purchases)
 

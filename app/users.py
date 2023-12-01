@@ -4,8 +4,10 @@ from flask_login import login_user, logout_user, current_user
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, BooleanField, SubmitField
 from wtforms.validators import ValidationError, DataRequired, Email, EqualTo
+from faker import Faker
 
 from .models.user import User
+from .models.product import Product
 
 
 from flask import Blueprint
@@ -30,6 +32,7 @@ def login():
             flash('Invalid email or password')
             return redirect(url_for('users.login'))
         login_user(user)
+        Product.shipping_speed_init(user.longitude, user.latitude)
         next_page = request.args.get('next')
         if not next_page or url_parse(next_page).netloc != '':
             next_page = url_for('index.index')
@@ -56,6 +59,7 @@ class RegistrationForm(FlaskForm):
 
 @bp.route('/register', methods=['GET', 'POST'])
 def register():
+    print("attempting to register")
     if current_user.is_authenticated:
         return redirect(url_for('index.index'))
     form = RegistrationForm()

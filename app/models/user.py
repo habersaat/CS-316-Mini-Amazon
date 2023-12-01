@@ -1,21 +1,24 @@
 from flask_login import UserMixin
 from flask import current_app as app
 from werkzeug.security import generate_password_hash, check_password_hash
+from faker import Faker
 
 from .. import login
 
 
 class User(UserMixin):
-    def __init__(self, id, email, firstname, lastname):
+    def __init__(self, id, email, firstname, lastname, latitude, longitude):
         self.id = id
         self.email = email
         self.firstname = firstname
         self.lastname = lastname
+        self.latitude = latitude
+        self.longitude = longitude
 
     @staticmethod
     def get_by_auth(email, password):
         rows = app.db.execute("""
-SELECT password, id, email, firstname, lastname
+SELECT password, id, email, firstname, lastname, latitude, longitude
 FROM Users
 WHERE email = :email
 """,
@@ -40,15 +43,20 @@ WHERE email = :email
 
     @staticmethod
     def register(email, password, firstname, lastname):
+        latitude = Faker().latitude()
+        longitude = Faker().longitude()
+        print("The latitude is: ", latitude)
+        print("The longitude is: ", longitude)
         try:
             rows = app.db.execute("""
-INSERT INTO Users(email, password, firstname, lastname)
-VALUES(:email, :password, :firstname, :lastname)
+INSERT INTO Users(email, password, firstname, lastname, latitude, longitude)
+VALUES(:email, :password, :firstname, :lastname , :latitude, :longitude)
 RETURNING id
 """,
                                   email=email,
                                   password=generate_password_hash(password),
-                                  firstname=firstname, lastname=lastname)
+                                  firstname=firstname, lastname=lastname,
+                                  latitude=latitude, longitude=longitude)
             id = rows[0][0]
             return User.get(id)
         except Exception as e:
@@ -61,9 +69,29 @@ RETURNING id
     @login.user_loader
     def get(id):
         rows = app.db.execute("""
-SELECT id, email, firstname, lastname
+SELECT id, email, firstname, lastname, latitude, longitude
 FROM Users
 WHERE id = :id
 """,
                               id=id)
         return User(*(rows[0])) if rows else None
+    
+    @staticmethod
+    def get_full_name(id):
+        rows = app.db.execute("""
+SELECT firstname, lastname
+FROM Users
+WHERE id = :id
+""",
+                              id=id)
+        return rows[0][0] + ' ' + rows[0][1] if rows else None
+
+    @staticmethod
+    def get_location(id):
+        rows = app.db.execute("""
+SELECT latitude, longitude
+FROM Users
+WHERE id = :id
+""",
+                              id=id)
+        return rows[0] if rows else None
