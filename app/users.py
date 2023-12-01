@@ -32,7 +32,7 @@ def login():
             flash('Invalid email or password')
             return redirect(url_for('users.login'))
         login_user(user)
-        Product.shipping_speed_init(user.longitude, user.latitude) # Initialize shipping speed. Can be commented out for performance
+        # Product.shipping_speed_init(user.longitude, user.latitude) # Initialize shipping speed for all products. Can be commented out for performance
         next_page = request.args.get('next')
         if not next_page or url_parse(next_page).netloc != '':
             next_page = url_for('index.index')

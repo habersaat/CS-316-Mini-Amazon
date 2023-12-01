@@ -62,12 +62,12 @@ WHERE id IN (
         # Get list of products that match the query string or are tagged with the query string
         k *= n
         rows = app.db.execute('''
-SELECT id, name, description_short, description_long, category, rating, image_url, price, available, low_stock, shipping_speed
+SELECT id
 FROM Products
 ''' + (f'WHERE category = :cat AND available = :available' if cat is not None else 'WHERE available = :available') + '''
 ''' + (f'AND LOWER(name) LIKE LOWER(:query)' if query is not None else '') + '''
 UNION
-SELECT id, name, description_short, description_long, category, rating, image_url, price, available, low_stock, shipping_speed
+SELECT id
 FROM Products
 WHERE id IN (
     SELECT pid
@@ -82,7 +82,27 @@ OFFSET :k ROWS FETCH NEXT :n ROWS ONLY
                               available=available,
                               k=k,
                               n=n)
-        return [Product(*row) for row in rows]
+        
+        # Update shipping speed if user is logged in
+        if current_user.is_authenticated:
+            print("Updating shipping speed...")
+            for row in rows:
+                # Update shipping speed for each product
+                Product.update_shipping_speed(row[0], current_user.longitude, current_user.latitude)
+        else:
+            print("Setting shipping speed to standard...")
+            for row in rows:
+                # Update shipping speed for each product
+                Product.update_shipping_speed(row[0], None, None)
+
+        # Now get the products that match our ids in the rows list
+        res = []
+        print(rows)
+        for row in rows:
+            # get product from id and add to res
+            res.append(Product.get(row[0]))
+
+        return res
     
     # get the length of the query result (not paginated)
     @staticmethod
@@ -349,17 +369,28 @@ LIMIT :k
         else:
             return "10 days"
         
-    # update the shipping speed of a product
+    # update the shipping speed of a product. Set to standard if user is not logged in
     @staticmethod
     def update_shipping_speed(pid, lon, lat):
-        rows = app.db.execute('''
-        UPDATE Products
-        SET shipping_speed = :shipping_speed
-        WHERE id = :id
-        ''',
-                                id=pid,
-                                shipping_speed=Product.get_shipping_speed(pid, lon, lat))
-        return rows
+        if lon is None or lat is None:
+            rows = app.db.execute('''
+            UPDATE Products
+            SET shipping_speed = :shipping_speed
+            WHERE id = :id
+            ''',
+                                    id=pid,
+                                    shipping_speed="Standard")
+            return rows
+        
+        else:
+            rows = app.db.execute('''
+            UPDATE Products
+            SET shipping_speed = :shipping_speed
+            WHERE id = :id
+            ''',
+                                    id=pid,
+                                    shipping_speed=Product.get_shipping_speed(pid, lon, lat))
+            return rows
         
     # initialize shipping speeds by calculating the shipping speed for each product based on the seller's location and the user's location
     @staticmethod
