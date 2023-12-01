@@ -86,7 +86,8 @@ def gen_carts(num_cart_items, available_pids):
                 print(f'{id}', end=' ', flush=True)
             uid = fake.random_int(min=0, max=num_users-1)
             pid = fake.random_element(elements=available_pids)
-            writer.writerow([id, uid, pid])
+            quantity = fake.random_int(min=1, max=20)
+            writer.writerow([id, uid, pid, quantity])
         print(f'{num_cart_items} generated')
 
 def gen_reviews(num_reviews, available_pids):
