@@ -4,9 +4,10 @@ from flask_login import login_user, logout_user, current_user
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, BooleanField, SubmitField
 from wtforms.validators import ValidationError, DataRequired, Email, EqualTo
-import random
+from faker import Faker
 
 from .models.user import User
+from .models.product import Product
 
 
 from flask import Blueprint
@@ -31,6 +32,7 @@ def login():
             flash('Invalid email or password')
             return redirect(url_for('users.login'))
         login_user(user)
+        Product.shipping_speed_init(user.longitude, user.latitude) # Initialize shipping speed. Can be commented out for performance
         next_page = request.args.get('next')
         if not next_page or url_parse(next_page).netloc != '':
             next_page = url_for('index.index')
@@ -66,7 +68,6 @@ def register():
                          form.firstname.data,
                          form.lastname.data):
             flash('Congratulations, you are now a registered user!')
-            current_user.id = random.randrange(1000000000)
             return redirect(url_for('users.login'))
     return render_template('register.html', title='Register', form=form)
 

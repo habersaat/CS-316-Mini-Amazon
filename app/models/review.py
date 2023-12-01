@@ -73,6 +73,33 @@ FROM Review
         return [Review(*row) for row in rows]
 
     @staticmethod
+    def get_paginated_reviews_by_product_id(k, n, product_id, ftr=None, ord=None):
+        k *= n
+        rows = app.db.execute('''
+SELECT review_id, product_id, user_id, rating, comment, timestamp, upvotes
+FROM Review
+WHERE product_id = :product_id
+''' + (f'ORDER BY {ftr} {ord}' if ord is not None else '') + '''
+OFFSET :k ROWS FETCH NEXT :n ROWS ONLY
+''',
+                              product_id=product_id,
+                              k=k,
+                              n=n)
+        return [Review(*row) for row in rows]
+
+
+    
+    @staticmethod
+    def count_reviews_by_product_id(product_id):
+        rows = app.db.execute('''
+SELECT COUNT(*)
+FROM Review
+WHERE product_id = :product_id
+''',
+                                product_id=product_id)
+        return rows[0][0] if rows else 0
+
+    @staticmethod
     def count_all_reviews(user_id=None):
         query = 'SELECT COUNT(*) FROM Review'
         params = {}
