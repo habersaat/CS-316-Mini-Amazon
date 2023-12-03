@@ -34,7 +34,13 @@ WHERE user_id = :user_id AND product_id = :product_id
 ''',
                               user_id=user_id,
                               product_id=product_id)
+        print(rows)  # Add this line for debugging
         return rows
+    
+    @staticmethod
+    def has_reviewed(user_id, product_id):
+        rows = Review.find_by_user_and_product(user_id, product_id)
+        return bool(rows)  # Returns True if rows is not empty, otherwise False
 
     @staticmethod
     def create_review(product_id, user_id, rating, comment):
@@ -52,25 +58,31 @@ RETURNING review_id
                                 user_id=user_id,
                                 rating=rating,
                                 comment=comment)
-        return result
+        review_id = result[0][0] if result else None  # Extracting the review_id
+        return review_id
 
     @staticmethod
-    def get_paginated_reviews(page, per_page=10, user_id=None):
+    def get_paginated_reviews(page, per_page=10, user_id=None, product_id=None):
         offset = (page - 1) * per_page
         query = '''
 SELECT review_id, product_id, user_id, rating, comment, timestamp, upvotes
 FROM Review
+WHERE 1=1
 '''
         params = {
             'per_page': per_page,
             'offset': offset
         }
         if user_id:
-            query += 'WHERE user_id = :user_id\n'
+            query += 'AND user_id = :user_id\n'
             params['user_id'] = user_id
+        if product_id:
+            query += 'AND product_id = :product_id\n'
+            params['product_id'] = product_id
         query += 'ORDER BY timestamp DESC\nLIMIT :per_page OFFSET :offset'
         rows = app.db.execute(query, **params)
         return [Review(*row) for row in rows]
+    
 
     @staticmethod
     def get_paginated_reviews_by_product_id(k, n, product_id, ftr=None, ord=None):
@@ -100,11 +112,23 @@ WHERE product_id = :product_id
         return rows[0][0] if rows else 0
 
     @staticmethod
-    def count_all_reviews(user_id=None):
-        query = 'SELECT COUNT(*) FROM Review'
+    def count_all_reviews(user_id=None, product_id=None):
+        query = 'SELECT COUNT(*) FROM Review WHERE 1=1'
         params = {}
         if user_id:
-            query += ' WHERE user_id = :user_id'
+            query += ' AND user_id = :user_id'
             params['user_id'] = user_id
+        if product_id:
+            query += ' AND product_id = :product_id'
+            params['product_id'] = product_id
         rows = app.db.execute(query, **params)
         return rows[0][0] if rows else 0
+    
+    @staticmethod
+    def remove_review(product_id, user_id):
+        app.db.execute('''
+DELETE FROM Review
+WHERE product_id = :product_id AND user_id = :user_id
+''',
+                    product_id=product_id,
+                    user_id=user_id)
