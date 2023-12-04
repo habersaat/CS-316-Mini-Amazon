@@ -106,6 +106,26 @@ def gen_reviews(num_reviews, available_pids):
             writer.writerow([id, pid, uid, rating, comment, timestamp, upvotes])
         print(f'{num_reviews} generated')
 
+def gen_seller_reviews(num_seller_reviews, available_pids):
+     with open('db/data/SellerReviews.csv', 'w') as f:
+        writer = get_csv_writer(f)
+        print('SellerReviews...', end=' ', flush=True)
+        for id in range(num_seller_reviews):
+            if id % 100 == 0:
+                print(f'{id}', end=' ', flush=True)
+            uid = fake.random_int(min=0, max=num_users-1)
+            #prevent seller from reviewing themselves (uid == sid)
+            sid = fake.random_int(min=0, max=num_users-1)
+            while uid == sid:
+                sid = fake.random_int(min=0, max=num_users-1)
+            rating = fake.random_int(min=1, max=5)
+            comment = fake.sentence(nb_words=10)
+            timestamp = fake.date_time()
+            upvotes = fake.random_int(min=0, max=100)
+            writer.writerow([id, sid, uid, rating, comment, timestamp, upvotes])
+        print(f'{num_seller_reviews} generated')
+
+
 def gen_inventory(num_inventory, available_pids, num_users):
     with open('db/data/Inventory.csv', 'w') as f:
         writer = get_csv_writer(f)

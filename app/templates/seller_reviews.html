@@ -1,0 +1,153 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1>SellerReviews</h1>
+
+<form action="" method="post" novalidate>
+  {{ form.hidden_tag() }}
+  <p>
+    {{ form.sellerID.label }}<br/>
+    {{ form.sellerID(size=32) }}<br/>
+    <p>{{ form.submit() }}</p>
+  </p>
+</form>
+
+<table class='table table-hover table-bordered container'>
+    <thead class="thead-dark">
+      <tr>
+        <th scope="col">User ID</th>
+        <th scope="col">Timestamp</th>
+        <th scope="col">Seller ID</th>
+        <th scope="col">Rating</th>
+        <th scope="col">Comment</th>
+        <th scope="col">Upvotes</th>
+        <th scope="col"></th>
+        <th scope="col"></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for seller_review in recent_reviews%}
+         
+            <tr>
+                <td>{{seller_review.user_id}}</td>
+                <td>{{ seller_review.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                <td>{{seller_review.seller_id}}</td>
+                <td>{{seller_review.rating}}</td>
+                <td>{{seller_review.comment}}</td>
+                <td>{{seller_review.upvotes}}</td>
+                
+                <!-- Modify Edit button to call editReview function -->
+                <td><button onclick="editReview({{seller_review.seller_id}})" class="btn btn-primary">Edit</button></td>
+                <!-- Modify Remove button to call removeReview function -->
+                <td><button onclick="removeReview({{seller_review.seller_id}})" class="btn btn-danger">Remove</button></td>
+    
+            </tr>
+             
+        {% endfor %}
+    </tbody>
+    </table>
+
+    
+  <div class="page-buttons">
+    {% if page > 1 %}
+      <a href="{{ url_for('reviews.reviews', page=page-1, user_id=user_id) }}" class="previous">&laquo; Previous</a>
+    {% endif %}
+    {% if page < total_pages %}
+      <a href="{{ url_for('reviews.reviews', page=page+1, user_id=user_id) }}" class="next">Next &raquo;</a>
+    {% endif %}
+  </div>
+  
+  <script>
+    document.addEventListener('DOMContentLoaded', (event) => {
+      if(window.location.href.indexOf("user_id") > -1) {
+        window.history.replaceState({}, document.title, "/seller_reviews");
+      }
+    });
+
+
+    
+    function removeReview(sellerID) {
+    var userId = {{current_user.id}}; // Current user's ID
+
+    if (confirm("Are you sure you want to remove your review?")) {
+      fetch('/remove_seller_review', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ user_id: userId, seller_id: sellerID })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          alert("Your review has been removed.");
+          window.location.reload(); // Reload the page to update the button
+        } else {
+          alert("Error removing review: " + data.message);
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert("An error occurred while removing your review.");
+      });
+      }
+    }
+
+    function editReview(sellerId) {
+      var userId = {{current_user.id}}; // Current user's ID
+
+      //Prompt to get the rating
+      var rating = prompt("Please enter your updated rating (1-5):", "");
+      //Prompt to get the review text
+      var review = prompt("Please enter your updated review:", "");
+
+      //Check if both rating and review are provided
+      if (rating && review) {
+          //Ask for confirmation before updating
+          var isConfirmed = confirm("Are you sure you want to update your review?");
+          
+          if (isConfirmed) {
+              //Prepare the data to be sent to the server
+              var reviewData = {
+                  user_id: userId, // Assuming you have access to current_user's ID
+                  seller_id: sellerId, // productId,
+                  rating: rating,
+                  comment: review
+              };
+
+            //Make an AJAX POST request to edit the review
+            fetch('/edit_seller_review', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(reviewData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    //If the review was successfully edited
+                    alert("Your review has been updated.");
+                    window.location.reload(); // Reload the page to update the button
+                } else {
+                    //If there was an error editing the review
+                    alert("Error editing review: " + data.message + " User ID: " + userId + " Seller ID: " + sellerId);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert("An error occurred while editing your review.");
+            });
+          } else {
+              //Handle the case where the user decides not to edit the review
+              alert("Your review was not updated.");
+          }
+      } else {
+          //Handle the case where the user leaves the prompt empty or clicks cancel
+          alert("You must enter both a rating and a review to update.");
+      }
+  }
+    </script>
+
+{% endblock %}

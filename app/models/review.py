@@ -10,32 +10,8 @@ class Review:
         self.timestamp = timestamp
         self.upvotes = upvotes
 
-    @staticmethod
-    def five_most_recent_by_user_id(uid):
-        print("The product_id is: ", uid)
-        rows = app.db.execute('''
-SELECT review_id, product_id, user_id, rating, comment, timestamp, upvotes
-FROM Review
-WHERE user_id = :uid
-ORDER BY timestamp DESC
-LIMIT 5
-''',
-                              uid=uid)
-        return [Review(*row) for row in rows]
 
-    
-
-    @staticmethod
-    def find_by_user_and_product(user_id, product_id):
-        rows = app.db.execute('''
-SELECT review_id
-FROM Review
-WHERE user_id = :user_id AND product_id = :product_id
-''',
-                              user_id=user_id,
-                              product_id=product_id)
-        print(rows)  # Add this line for debugging
-        return rows
+#modifiers
 
     @staticmethod
     def create_review(product_id, user_id, rating, comment):
@@ -55,6 +31,71 @@ RETURNING review_id
                                 comment=comment)
         review_id = result[0][0] if result else None  # Extracting the review_id
         return review_id
+
+    
+    @staticmethod
+    def remove_review(user_id, product_id):
+        app.db.execute('''
+DELETE FROM Review
+WHERE user_id = :user_id AND product_id = :product_id
+''',
+                    user_id=user_id,
+                    product_id=product_id)
+
+    @staticmethod
+    def edit_review(user_id, product_id, rating, comment):
+        app.db.execute('''
+UPDATE Review
+SET rating = :rating, comment = :comment
+WHERE user_id = :user_id AND product_id = :product_id
+''',
+                    rating=rating,
+                    comment=comment,
+                    user_id=user_id,
+                    product_id=product_id)
+
+#accessors
+
+    @staticmethod
+    def count_reviews(user_id=None, product_id=None):
+        query = 'SELECT COUNT(*) FROM Review WHERE 1=1'
+        params = {}
+        if user_id:
+            query += ' AND user_id = :user_id'
+            params['user_id'] = user_id
+        if product_id:
+            query += ' AND product_id = :product_id'
+            params['product_id'] = product_id
+        rows = app.db.execute(query, **params)
+        return rows[0][0] if rows else 0
+
+
+    @staticmethod
+    def five_most_recent_by_user_id(uid):
+        print("The user_id is: ", uid)
+        rows = app.db.execute('''
+SELECT review_id, product_id, user_id, rating, comment, timestamp, upvotes
+FROM Review
+WHERE user_id = :uid
+ORDER BY timestamp DESC
+LIMIT 5
+''',
+                              uid=uid)
+        return [Review(*row) for row in rows]
+
+
+    @staticmethod
+    def find_by_user_and_product(user_id, product_id):
+        rows = app.db.execute('''
+SELECT review_id
+FROM Review
+WHERE user_id = :user_id AND product_id = :product_id
+''',
+                              user_id=user_id,
+                              product_id=product_id)
+        print(rows)  # Add this line for debugging
+        return rows
+
 
     @staticmethod
     def has_reviewed(user_id, product_id):
@@ -118,50 +159,3 @@ FETCH FIRST 7 ROWS ONLY
         rows = top_upvoted_rows + recent_rows
 
         return [Review(*row) for row in rows]
-
-
-    
-    @staticmethod
-    def count_reviews_by_product_id(product_id):
-        rows = app.db.execute('''
-SELECT COUNT(*)
-FROM Review
-WHERE product_id = :product_id
-''',
-                                product_id=product_id)
-        return rows[0][0] if rows else 0
-
-    @staticmethod
-    def count_all_reviews(user_id=None, product_id=None):
-        query = 'SELECT COUNT(*) FROM Review WHERE 1=1'
-        params = {}
-        if user_id:
-            query += ' AND user_id = :user_id'
-            params['user_id'] = user_id
-        if product_id:
-            query += ' AND product_id = :product_id'
-            params['product_id'] = product_id
-        rows = app.db.execute(query, **params)
-        return rows[0][0] if rows else 0
-    
-    @staticmethod
-    def remove_review(user_id, product_id):
-        app.db.execute('''
-DELETE FROM Review
-WHERE user_id = :user_id AND product_id = :product_id
-''',
-                    user_id=user_id,
-                    product_id=product_id)
-
-    @staticmethod
-    def edit_review(user_id, product_id, rating, comment):
-        app.db.execute('''
-UPDATE Review
-SET rating = :rating, comment = :comment
-WHERE user_id = :user_id AND product_id = :product_id
-''',
-                    rating=rating,
-                    comment=comment,
-                    user_id=user_id,
-                    product_id=product_id)
-                    

@@ -27,7 +27,7 @@ def reviews():
         return redirect(url_for('reviews.reviews', page=1, user_id=current_user.id, product_id=product_id))
 
     recent_reviews = Review.get_paginated_reviews(page, user_id=current_user.id, product_id=product_id)
-    total_reviews = Review.count_all_reviews(user_id=current_user.id, product_id=product_id)
+    total_reviews = Review.count_reviews(user_id=current_user.id, product_id=product_id)
     total_pages = (total_reviews + 9) // 10
 
     return render_template('reviews.html', title='Reviews', form=form, recent_reviews=recent_reviews, page=page, total_pages=total_pages, user_id=current_user.id, product_id=product_id)
