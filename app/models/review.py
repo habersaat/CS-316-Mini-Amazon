@@ -36,11 +36,6 @@ WHERE user_id = :user_id AND product_id = :product_id
                               product_id=product_id)
         print(rows)  # Add this line for debugging
         return rows
-    
-    @staticmethod
-    def has_reviewed(user_id, product_id):
-        rows = Review.find_by_user_and_product(user_id, product_id)
-        return bool(rows)  # Returns True if rows is not empty, otherwise False
 
     @staticmethod
     def create_review(product_id, user_id, rating, comment):
@@ -61,6 +56,18 @@ RETURNING review_id
         review_id = result[0][0] if result else None  # Extracting the review_id
         return review_id
 
+    @staticmethod
+    def has_reviewed(user_id, product_id):
+        rows = app.db.execute('''
+SELECT COUNT(*)
+FROM Review
+WHERE user_id = :user_id AND product_id = :product_id
+''',
+                              user_id=user_id,
+                              product_id=product_id)
+        return rows[0][0] > 0 if rows else False
+
+        
     @staticmethod
     def get_paginated_reviews(page, per_page=10, user_id=None, product_id=None):
         offset = (page - 1) * per_page
@@ -85,18 +92,31 @@ WHERE 1=1
     
 
     @staticmethod
-    def get_paginated_reviews_by_product_id(k, n, product_id, ftr=None, ord=None):
-        k *= n
-        rows = app.db.execute('''
+    def get_paginated_reviews_by_product_id(product_id):
+        # Select the top 3 reviews with the highest upvotes
+        top_upvoted_rows = app.db.execute('''
 SELECT review_id, product_id, user_id, rating, comment, timestamp, upvotes
 FROM Review
 WHERE product_id = :product_id
-''' + (f'ORDER BY {ftr} {ord}' if ord is not None else '') + '''
-OFFSET :k ROWS FETCH NEXT :n ROWS ONLY
+ORDER BY upvotes DESC
+FETCH FIRST 3 ROWS ONLY
 ''',
-                              product_id=product_id,
-                              k=k,
-                              n=n)
+                                        product_id=product_id)
+
+        # Select the 7 most recent reviews, excluding the top 3
+        recent_rows = app.db.execute('''
+SELECT review_id, product_id, user_id, rating, comment, timestamp, upvotes
+FROM Review
+WHERE product_id = :product_id
+  AND review_id NOT IN (SELECT review_id FROM Review WHERE product_id = :product_id ORDER BY upvotes DESC FETCH FIRST 3 ROWS ONLY)
+ORDER BY timestamp DESC
+FETCH FIRST 7 ROWS ONLY
+''',
+                                    product_id=product_id)
+
+        # Combine the top upvoted reviews and the most recent reviews
+        rows = top_upvoted_rows + recent_rows
+
         return [Review(*row) for row in rows]
 
 
@@ -125,10 +145,23 @@ WHERE product_id = :product_id
         return rows[0][0] if rows else 0
     
     @staticmethod
-    def remove_review(product_id, user_id):
+    def remove_review(user_id, product_id):
         app.db.execute('''
 DELETE FROM Review
-WHERE product_id = :product_id AND user_id = :user_id
+WHERE user_id = :user_id AND product_id = :product_id
 ''',
-                    product_id=product_id,
-                    user_id=user_id)
+                    user_id=user_id,
+                    product_id=product_id)
+
+    @staticmethod
+    def edit_review(user_id, product_id, rating, comment):
+        app.db.execute('''
+UPDATE Review
+SET rating = :rating, comment = :comment
+WHERE user_id = :user_id AND product_id = :product_id
+''',
+                    rating=rating,
+                    comment=comment,
+                    user_id=user_id,
+                    product_id=product_id)
+                    

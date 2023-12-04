@@ -130,22 +130,40 @@
         <!-- build comment -->
         <ul class="user_comment">
 
-          <!-- current #{user} avatar -->
-          <div class="user_rating">
+          <!-- Combined container for upvotes and rating -->
+      <div class="user_review_details" style="display: flex; align-items: center; gap: 10px;">
+        
+        <!-- display rating -->
+        <div class="user_rating">
             {% if review.rating == 5 %}
-              <img src="https://cdn.discordapp.com/attachments/267067486518771713/1179795523717320755/5stars.jpg?ex=657b1534&is=6568a034&hm=ad5ed8a80dbb49bca40c38e4ae5b4f64b9e50760c28bdde7976a6cdbcfd9fca4&">
-            {% elif review.rating == 4%}
-            <img src="https://cdn.discordapp.com/attachments/267067486518771713/1179795523507597374/4stars.jpg?ex=657b1534&is=6568a034&hm=064c288416d6b566c4209d0c49b79b4a0b994172c8cd5309c46ee62fc9c4fe2b&">
-            {% elif review.rating == 3%}
-            <img src="https://cdn.discordapp.com/attachments/267067486518771713/1179795523289485465/3stars.jpg?ex=657b1534&is=6568a034&hm=fb650cd6b594e2ecab2b21e82ce6c3bd52529ce64fa84780d4797a719c83b710&">
-            {% elif review.rating == 2%}
-            <img src="https://cdn.discordapp.com/attachments/267067486518771713/1179795523029454848/2stars.jpg?ex=657b1534&is=6568a034&hm=9b67aab7b322a963b4aac4121e1d01cc8bf7a5baa7dd0e3d7fbb24c5bc312ad0&">
-            {% elif review.rating == 1%}
-            <img src="https://cdn.discordapp.com/attachments/267067486518771713/1179795522786177114/1star.jpg?ex=657b1534&is=6568a034&hm=b7b7973a743b220ab67cab1e4a9ad6351d83c52205e7341c28dac458b510134a&">
+                <img src="https://cdn.discordapp.com/attachments/267067486518771713/1179795523717320755/5stars.jpg">
+            {% elif review.rating == 4 %}
+                <img src="https://cdn.discordapp.com/attachments/267067486518771713/1179795523507597374/4stars.jpg">
+            {% elif review.rating == 3 %}
+                <img src="https://cdn.discordapp.com/attachments/267067486518771713/1179795523289485465/3stars.jpg">
+            {% elif review.rating == 2 %}
+                <img src="https://cdn.discordapp.com/attachments/267067486518771713/1179795523029454848/2stars.jpg">
+            {% elif review.rating == 1 %}
+                <img src="https://cdn.discordapp.com/attachments/267067486518771713/1179795522786177114/1star.jpg">
             {% endif %}
-          </div><!-- the comment body --><div class="comment_body">
-            <p>{{review.comment}}</p>
-          </div>
+        </div>
+        
+        
+        <!-- display upvotes aligned to the right side of the screen-->
+        <div class="user_upvotes" style="margin-left: auto;">
+            <p>{{review.upvotes}}</p>
+             <!-- display heart like button-->
+            <i class="fa fa-heart love"></i>
+        </div>
+        
+
+</div><!-- End of combined container -->
+
+<!-- the comment body -->
+<div class="comment_body">
+  <p>{{review.comment}}</p>
+</div>
+
           
           <!-- comments toolbar -->
           <div class="comment_toolbar">
@@ -153,28 +171,19 @@
             <!-- inc. date and time -->
             <div class="comment_details">
               <ul>
-                <li><i class="fa fa-clock-o"></i> {{review.time}}</li>
+                <li><i class="fa fa-clock"></i> {{review.time}}</li>
                 <li><i class="fa fa-calendar"></i> {{review.date}}</li>
                 <li><i class="fa fa-pencil"></i> <span class="user">{{review.user}}</span></li>
               </ul>
-            </div><!-- inc. share/reply and love --><div class="comment_tools">
-              <ul>
-                <li><i class="fa fa-share-alt"></i></li>
-                <li><i class="fa fa-reply"></i></li>
-                <li><i class="fa fa-heart love"></i></li>
-              </ul>
-            </div>
           </div>
         </ul>
       {% endfor %}
-
-      {% for product in avail_products%}
-        {% if has_reviewed(current_user.id, product.id) %}
-          <button class="write-review" onclick="removeReview({{ product.id }})">Remove Review</button>
+        {% if has_reviewed == True %}
+          <button class="write-review" onclick="editReview({{ product_id }})">Edit Review</button>
+          <button class="write-review" onclick="removeReview({{ product_id }})">Remove Review</button>
         {% else %}
-          <button class="write-review" onclick="writeReview({{ product.id }})">Write a Review</button>
+          <button class="write-review" onclick="writeReview({{ product_id }})">Write Review</button>
         {% endif %}
-      {% endfor %}
     </div>
   </div>
 
@@ -209,24 +218,25 @@
 
   <script>
     function writeReview(productId) {
-    // Use prompt to get the rating
-    var rating = prompt("Please enter your rating (1-5):", "");
-    // Use prompt to get the review text
-    var review = prompt("Please enter your review:", "");
+      var userId = {{current_user.id}}; // Current user's ID
+      // Use prompt to get the rating
+      var rating = prompt("Please enter your rating (1-5):", "");
+      // Use prompt to get the review text
+      var review = prompt("Please enter your review:", "");
 
-    // Check if both rating and review are provided
-    if (rating && review) {
-        // Ask for confirmation before submitting
-        var isConfirmed = confirm("Are you sure you want to submit your review?");
-        
-        if (isConfirmed) {
-            // Prepare the data to be sent to the server
-            var reviewData = {
-                user_id: {{current_user.id}}, // Assuming you have access to current_user's ID
-                product_id: productId, // productId,
-                rating: rating,
-                comment: review
-            };
+      // Check if both rating and review are provided
+      if (rating && review) {
+          // Ask for confirmation before submitting
+          var isConfirmed = confirm("Are you sure you want to submit your review?");
+          
+          if (isConfirmed) {
+              // Prepare the data to be sent to the server
+              var reviewData = {
+                  user_id: userId, // Assuming you have access to current_user's ID
+                  product_id: productId, // productId,
+                  rating: rating,
+                  comment: review
+              };
 
             // Make an AJAX POST request to submit the review
             fetch('/submit_review', {
@@ -241,11 +251,9 @@
                 if (data.success) {
                     // If the review was successfully submitted
                     alert("Your review has been submitted.");
-                    // Redirect to the reviews page
-                    window.location.href = "http://localhost:8080/reviews";
                 } else {
                     // If there was an error submitting the review
-                    alert("Error submitting review: " + data.message + " User ID: " + {{current_user.id}} + " Prod ID: " + productId);
+                    alert("Error submitting review: " + data.message + " User ID: " + userId + " Prod ID: " + productId);
                 }
             })
             .catch(error => {
@@ -263,32 +271,91 @@
   }
 
   function removeReview(productId) {
-  var userId = {{current_user.id}}; // Current user's ID
+    var userId = {{current_user.id}}; // Current user's ID
 
-  if (confirm("Are you sure you want to remove your review?")) {
-    fetch('/remove_review', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ user_id: userId, product_id: productId })
-    })
-    .then(response => response.json())
-    .then(data => {
-      if (data.success) {
-        alert("Your review has been removed.");
-        window.location.reload(); // Reload the page to update the button
-      } else {
-        alert("Error removing review: " + data.message);
+    if (confirm("Are you sure you want to remove your review?")) {
+      fetch('/remove_review', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ user_id: userId, product_id: productId })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          alert("Your review has been removed.");
+          window.location.reload(); // Reload the page to update the button
+        } else {
+          alert("Error removing review: " + data.message);
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert("An error occurred while removing your review.");
+      });
       }
-    })
-    .catch(error => {
-      console.error('Error:', error);
-      alert("An error occurred while removing your review.");
-    });
     }
+
+    function editReview(productId) {
+      var userId = {{current_user.id}}; // Current user's ID
+
+      //Prompt to get the rating
+      var rating = prompt("Please enter your updated rating (1-5):", "");
+      //Prompt to get the review text
+      var review = prompt("Please enter your updated review:", "");
+
+      //Check if both rating and review are provided
+      if (rating && review) {
+          //Ask for confirmation before updating
+          var isConfirmed = confirm("Are you sure you want to update your review?");
+          
+          if (isConfirmed) {
+              //Prepare the data to be sent to the server
+              var reviewData = {
+                  user_id: userId, // Assuming you have access to current_user's ID
+                  product_id: productId, // productId,
+                  rating: rating,
+                  comment: review
+              };
+
+            //Make an AJAX POST request to edit the review
+            fetch('/edit_review', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(reviewData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    //If the review was successfully edited
+                    alert("Your review has been updated.");
+                    window.location.reload(); // Reload the page to update the button
+                } else {
+                    //If there was an error editing the review
+                    alert("Error editing review: " + data.message + " User ID: " + userId + " Prod ID: " + productId);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert("An error occurred while editing your review.");
+            });
+          } else {
+              //Handle the case where the user decides not to edit the review
+              alert("Your review was not updated.");
+          }
+      } else {
+          //Handle the case where the user leaves the prompt empty or clicks cancel
+          alert("You must enter both a rating and a review to update.");
+      }
   }
 
+
+
+
+            
 
   </script>
 

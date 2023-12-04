@@ -37,7 +37,8 @@ def product_info():
         currentPage = 0
 
     # get a page of reviews
-    reviews = Review.get_paginated_reviews_by_product_id(currentPage, 10, prod_id, None, None)
+    reviews = Review.get_paginated_reviews_by_product_id(prod_id)
+
 
     # get all tags associated with a product
     tags = Tag.get_tags_by_pid(prod_id)
@@ -49,5 +50,10 @@ def product_info():
         time = review.timestamp.strftime("%I:%M %p")
         review.user, review.date, review.time = user, date, time
 
+    has_reviewed = False
+    if current_user.is_authenticated and current_user.id in [review.user_id for review in reviews]:
+        has_reviewed = True
+
+
     # render product.html
-    return render_template('product.html', title='Product Info', avail_products=product, seller_products=seller_products, tags=tags, reviews=reviews)
+    return render_template('product.html', title='Product Info', avail_products=product, seller_products=seller_products, tags=tags, reviews=reviews, has_reviewed=has_reviewed, page=currentPage+1, total_pages=(len(reviews)+9)//10, user_id=current_user.id, product_id=prod_id)
