@@ -71,3 +71,14 @@ CREATE TABLE Tags (
     pid INT NOT NULL REFERENCES Products(id),
     name VARCHAR(255) NOT NULL
 );
+
+CREATE TABLE Orders (
+    order_id SERIAL PRIMARY KEY,
+    seller_id INT,
+    customer_id INT,
+    total_amount DECIMAL(10, 2) NOT NULL,
+    recipient_address VARCHAR(255) NOT NULL,
+    order_status VARCHAR(255) NOT NULL,
+    delivery_date TIMESTAMP NOT NULL
+
+);

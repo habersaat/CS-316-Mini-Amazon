@@ -6,8 +6,9 @@ from wtforms import IntegerField, PasswordField, BooleanField, SubmitField
 from wtforms.validators import ValidationError, DataRequired, Email, EqualTo
 import datetime
 
-# from .models.seller import Seller
+
 from .models.inventory import Inventory
+from .models.orders import Order
 
 
 from flask import Blueprint
@@ -19,21 +20,7 @@ class SellerForm(FlaskForm):
     userID = IntegerField('Seller ID', validators=[DataRequired()])
     submit = SubmitField('View Inventory')
 
-"""
-@bp.route('/inventory', methods=['GET', 'POST'])
-def sellers():
-    form = SellerForm()
-    page = request.args.get('page', 1, type=int)
-    per_page = 10  
-    available_inventory = Inventory.get_inventory_by_sid(form.userID.data, page, per_page)
-   
-    total_inventory_count = Inventory.get_count_by_sid(form.userID.data)
-    return render_template('inventory.html', title='Inventory', form=form,
-                           available_inventory=available_inventory,
-                           total_inventory_count=total_inventory_count,
-                           page=page, per_page=per_page)
 
-"""
 
 @bp.route('/inventory', methods=['GET', 'POST'])
 def sellers():
@@ -42,15 +29,16 @@ def sellers():
     page = request.args.get('page', 1, type=int)
     per_page = 10
 
+    seller_orders = []  #initialize an empty list
+
     if request.method == 'POST' and form.validate_on_submit():
         seller_id = form.userID.data
-        
         return redirect(url_for('Inventory.sellers', seller_id=seller_id))
 
     if seller_id:
         available_inventory = Inventory.get_inventory_by_sid(seller_id, page, per_page)
         total_inventory_count = Inventory.get_count_by_sid(seller_id)
-    
+        seller_orders = Order.get_orders_by_user_id(seller_id)  #active orders of the seller
     else:
         available_inventory = []
         total_inventory_count = 0
@@ -58,8 +46,14 @@ def sellers():
     if not available_inventory and request.method == 'GET':
         flash('No inventory items found or invalid Seller ID.')
 
+    #pass both inventory and orders data 
     return render_template('inventory.html', form=form, seller_id=seller_id,
                            available_inventory=available_inventory,
                            total_inventory_count=total_inventory_count,
+                           seller_orders=seller_orders,  # Add this line to pass orders
                            page=page, per_page=per_page)
 
+@bp.route('/seller/<int:seller_id>')
+def view_seller_orders(seller_id):
+    seller_orders = Order.query.filter_by(user_id=seller_id).all()  # Assuming 'user_id' is the seller's ID
+    return render_template('inventory.html', seller_orders=seller_orders)

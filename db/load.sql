@@ -34,3 +34,9 @@ SELECT pg_catalog.setval('public.inventory_id_seq',
 SELECT pg_catalog.setval('public.tags_id_seq',
                          (SELECT MAX(id)+1 FROM Tags),
                          false);
+
+
+\COPY Orders FROM 'Orders.csv' WITH DELIMITER ',' NULL '' CSV
+SELECT pg_catalog.setval('public.orders_order_id_seq',
+                         (SELECT MAX(order_id)+1 FROM Orders),
+                         false);

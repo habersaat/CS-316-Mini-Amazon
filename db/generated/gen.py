@@ -1,6 +1,7 @@
 from werkzeug.security import generate_password_hash
 import csv
 from faker import Faker
+import random
 
 num_users = 200
 num_products = 4000
@@ -137,10 +138,26 @@ def gen_tags(num_tags, available_pids):
             writer.writerow([id, pid, tag])
         print(f'{num_tags} generated')
 
+def gen_orders(num_orders, num_users, available_pids):
+    with open('db/data/Orders.csv', 'w', newline='') as f:
+        writer = csv.writer(f)
+        writer.writerow(['Order ID', 'User ID', 'Product ID', 'Total Amount', 'Recipient Address', 'Order Status', 'Order Date'])
+
+        for _ in range(num_orders):
+            order_id = fake.unique.random_int()
+            user_id = random.randint(1, num_users)
+            product_id = random.choice(available_pids)
+            total_amount = round(random.uniform(10, 500), 2)  # Use random.uniform instead of fake.uniform
+            recipient_address = fake.address()
+            order_status = random.choice(['Pending', 'Shipped', 'Delivered', 'Cancelled'])
+            order_date = fake.date_between(start_date='-2y', end_date='today')
+
+            writer.writerow([order_id, user_id, product_id, total_amount, recipient_address, order_status, order_date])
+
 def main():
-    num_inventory = 10000  # Or however many inventory items you want to generate
-    num_users = 200  # This should match the number you used in gen_users
-    available_pids = gen_products(num_products)  # This should be the list of available product IDs
+    num_inventory = 10000 
+    num_users = 200  
+    available_pids = gen_products(num_products)  
 
     gen_users(num_users)
     gen_purchases(num_purchases, available_pids)
@@ -148,6 +165,7 @@ def main():
     gen_reviews(num_reviews, available_pids)
     gen_inventory(num_inventory, available_pids, num_users) 
     gen_tags(num_tags, available_pids)
+    gen_orders(num_orders=1000, num_users=200, available_pids=available_pids)
 
 if __name__ == "__main__":
     main()

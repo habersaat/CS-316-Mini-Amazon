@@ -5,47 +5,85 @@
 <h1>Inventory</h1>
 
 <form action="{{ url_for('Inventory.sellers') }}" method="post" novalidate>
-  {{ form.hidden_tag() }}
-  <p>
-    {{ form.userID.label }}<br/>
-    {{ form.userID(size=32) }}<br/>
-    {{ form.submit() }}
-  </p>
+    {{ form.hidden_tag() }}
+    <p>
+        {{ form.userID.label }}<br/>
+        {{ form.userID(size=32) }}<br/>
+        {{ form.submit() }}
+    </p>
 </form>
 
 {% if available_inventory %}
 <table class='table table-hover table-bordered container'>
     <thead class="thead-dark">
-      <tr>
-        <th scope="col">Seller ID</th>
-        <th scope="col">Product ID</th>
-        <th scope="col">Quantity</th>
-        <th scope="col">Available</th>
-      </tr>
+        <tr>
+            <th scope="col">Seller ID</th>
+            <th scope="col">Product ID</th>
+            <th scope="col">Quantity</th>
+            <th scope="col">Available</th>
+        </tr>
     </thead>
     <tbody>
-      {% for product in available_inventory %}
-        <tr>
-          <td>{{ product.sid }}</td>
-          <td>{{ product.pid }}</td>
-          <td>{{ product.quantity }}</td>
-          <td>{{ product.available }}</td>
-        </tr>
-      {% endfor %}
+        {% for product in available_inventory %}
+            <tr>
+                <td>{{ product.sid }}</td>
+                <td>{{ product.pid }}</td>
+                <td>{{ product.quantity }}</td>
+                <td>{{ product.available }}</td>
+            </tr>
+        {% endfor %}
     </tbody>
-  </table>
+</table>
 
-  <nav aria-label="Inventory pagination">
+<nav aria-label="Inventory pagination">
     <ul class="pagination">
-      {% for page_num in range(1, total_inventory_count // per_page + 1) %}
-        <li class="page-item {% if page_num == page %}active{% endif %}">
-          <a class="page-link" href="{{ url_for('Inventory.sellers', seller_id=seller_id, page=page_num)}}">{{ page_num }}</a>
-        </li>
-      {% endfor %}
+        {% for page_num in range(1, total_inventory_count // per_page + 1) %}
+            <li class="page-item {% if page_num == page %}active{% endif %}">
+                <a class="page-link" href="{{ url_for('Inventory.sellers', seller_id=seller_id, page=page_num) }}">{{ page_num }}</a>
+            </li>
+        {% endfor %}
     </ul>
-  </nav>
+</nav>
 {% else %}
-  <p>No inventory items found for this seller.</p>
+<p>No inventory items found for this seller.</p>
+{% endif %}
+
+<h1>Orders</h1>
+
+{% if seller_orders %}
+<table class='table table-hover table-bordered container'>
+    <thead class="thead-dark">
+        <tr>
+            <th scope="col">Order ID</th>
+            <th scope="col">Seller ID</th>
+            <th scope="col">Customer ID</th>
+            <th scope="col">Total Amount</th>
+            <th scope="col">Recipient Address</th>
+            <th scope="col">Order Status</th>
+            <th scope="col">Delivery Date</th>
+            <th scope="col">Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for order in seller_orders %}
+            <tr>
+                <td>{{ order.order_id }}</td>
+                <td>{{ order.seller_id }}</td>
+                <td>{{ order.customer_id }}</td>
+                <td>{{ order.total_amount }}</td>
+                <td>{{ order.recipient_address }}</td>
+                <td>{{ order.order_status }}</td>
+                <td>{{ order.delivery_date }}</td>
+                <td>
+                    <a href="/edit_order/?order_id={{ order.order_id }}" type="button" class="btn btn-light">Edit</a>
+                    <a href="/delete_order/?order_id={{ order.order_id }}" type="button" class="btn btn-light" onclick="return confirm('Are you sure you want to delete this order?');">Delete</a>
+                </td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p>No orders found.</p>
 {% endif %}
 
 {% endblock %}
