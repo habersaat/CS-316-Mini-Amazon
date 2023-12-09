@@ -21,6 +21,7 @@ def carts():
     form = CartsForm()
     uid = current_user.id
     cart_items = Cart.items_by_uid(uid)
+    print("The cart items are: ", cart_items)
     return render_template('carts.html', title='My Cart', form=form, cart_items=cart_items)
 
 @bp.route('/carts/minus/<pid>,<quantity>,<price>', methods = ['GET', 'POST'])
@@ -43,9 +44,7 @@ def add_item(pid, quantity,price):
 def addToCart(productId, quantity):
     form = CartsForm()
     uid = current_user.id
-    if (str(quantity)=="NaN"): 
-            quantity=1
-    Cart.add_to_cart(uid, productId, quantity)
+    Cart.add_to_cart(uid, pid)
     cart_items = Cart.items_by_uid(uid)
     return render_template('carts.html', title = "My Cart", form=form, cart_items=cart_items)
 
@@ -56,5 +55,3 @@ def delete_item(pid):
     Cart.delete_from_cart(uid, pid)
     cart_items = Cart.items_by_uid(uid)
     return render_template('carts.html', title = "My Cart", form=form, cart_items=cart_items)
-
-    

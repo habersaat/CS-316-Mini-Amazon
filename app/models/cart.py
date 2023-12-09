@@ -3,7 +3,6 @@ from app.models.inventory import Inventory
 from flask import current_app as app
 
 
-
 class Cart:
     def __init__(self, uid, pid, sid, name, quantity, price, image_url, save_for_later):
         #self.id = id
@@ -25,18 +24,19 @@ class Cart:
         WHERE Carts.uid = :uid AND Carts.pid = Products.id AND Inventory.pid = Products.id
         ''',
                               uid=uid)
-        return [Cart(*row) for row in rows]
+        return [Product(*row) for row in rows]
     
-    
+    #write a sql to add a row to the current cart
+    #take in current user ID, add a row in the cart
     @staticmethod
-    def add_to_cart(uid, pid, quantity):
+    def add_to_cart(uid, pid):
         app.db.execute('''
         INSERT INTO Carts(uid, pid, quantity)
         VALUES(:uid, :pid, :quantity)
         ''',
         uid=uid,
         pid=pid,
-        quantity=quantity)
+        quantity=1)
         return
     
     @staticmethod

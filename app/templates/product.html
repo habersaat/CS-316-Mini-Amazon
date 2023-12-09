@@ -90,10 +90,10 @@
           <input type="number" id="numitems_{{ prod.sid }}" min="1" max="100" />
         </td>
         <td>
+          <!-- Pass the product ID and the input value to the function -->
           <button class="btn" onclick="addToCart('{{ prod.id }}', '{{ prod.pid }}', '{{ prod.sid }},', '{{ prod.quantity }}', document.getElementById('numitems_{{ prod.sid }}').value);">
             Add To Cart
           </button>
-          <!-- Pass the product ID and the input value to the function -->
         </td>
       </tr>
     {% endfor %}
@@ -172,24 +172,17 @@
   </div>
 
 <script>
-  function addToCart(tid, productId, sellerId, maxQuantity, quantity) {
-    quantity = parseInt(quantity);
-    maxQuantity = parseInt(maxQuantity);
-    if (quantity > maxQuantity) {
-      alert("You cannot add more than " + maxQuantity + " items to your cart.");
-      return;
-    } 
-    elif (Cart.item_by_uid(current_user.id).includes(productId)){
-      alert("This item is already in your cart");
-      return;
+    function addToCart(tid, productId, sellerId, maxQuantity, quantity) {
+      quantity = parseInt(quantity);
+      maxQuantity = parseInt(maxQuantity);
+      if (quantity > maxQuantity) {
+        alert("You cannot add more than " + maxQuantity + " items to your cart.");
+        return;
+      } else {
+        alert("ID: " + tid + ", Product ID: " + productId + ", Seller ID: " + sellerId + " Quantity: " + quantity);
+      }
+      // TODO: Implement adding to cart
     }
-    else {
-      var url = '/carts/'+productId+'/'+quantity; // Construct the URL for the Flask route
-      window.location.href = url;
-      alert("ID: " + tid + ", Product ID: " + productId + ", Seller ID: " + sellerId + " Quantity: " + quantity);
-    }
-  }
-
 
     const activeImage = document.querySelector(".product-image .active");
     const productImages = document.querySelectorAll(".image-list img");
