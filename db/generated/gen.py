@@ -86,9 +86,12 @@ def gen_carts(num_cart_items, available_pids):
                 print(f'{id}', end=' ', flush=True)
             uid = fake.random_int(min=0, max=num_users-1)
             pid = fake.random_element(elements=available_pids)
+            sid = fake.random_int(min=0, max=num_users-1)
             quantity = fake.random_int(min=1, max=20)
-            writer.writerow([id, uid, pid, quantity])
+            save_for_later = False
+            writer.writerow([id, uid, pid, sid, quantity, save_for_later])
         print(f'{num_cart_items} generated')
+        return
 
 def gen_reviews(num_reviews, available_pids):
     with open('db/data/Reviews.csv', 'w') as f:
