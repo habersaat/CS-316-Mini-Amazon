@@ -5,7 +5,7 @@ from flask import current_app as app
 
 class Cart:
     def __init__(self, uid, pid, sid, name, quantity, price, image_url, save_for_later):
-        #self.id = id
+        self.id = id
         self.uid = uid
         self.pid = pid
         self.sid = sid
@@ -20,7 +20,7 @@ class Cart:
         rows = app.db.execute('''
         SELECT DISTINCT Carts.uid as uid, Carts.pid as pid, Inventory.sid as sid, Products.name as name, 
         Carts.quantity as quantity, Products.price as price, Products.image_url as image_url
-        FROM Carts,Products, Inventory
+        FROM Carts, Products, Inventory
         WHERE Carts.uid = :uid AND Carts.pid = Products.id AND Inventory.pid = Products.id
         ''',
                               uid=uid)
