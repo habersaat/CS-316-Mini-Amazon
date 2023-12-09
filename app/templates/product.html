@@ -91,7 +91,7 @@
         </td>
         <td>
           <!-- Pass the product ID and the input value to the function -->
-          <button class="btn" onclick="addToCart('{{ prod.id }}', '{{ prod.pid }}', '{{ prod.sid }},', '{{ prod.quantity }}', document.getElementById('numitems_{{ prod.sid }}').value);">
+          <button class="btn" onclick="addToCart('{{ prod.id }}', '{{ prod.pid }}', '{{ prod.sid }}', '{{ prod.quantity }}', document.getElementById('numitems_{{ prod.sid }}').value);">
             Add To Cart
           </button>
         </td>
@@ -175,10 +175,13 @@
     function addToCart(tid, productId, sellerId, maxQuantity, quantity) {
       quantity = parseInt(quantity);
       maxQuantity = parseInt(maxQuantity);
+      sellerId = parseInt(sellerId)
       if (quantity > maxQuantity) {
         alert("You cannot add more than " + maxQuantity + " items to your cart.");
         return;
       } else {
+        var url = '/carts/'+productId+'/'+quantity+'/'+sellerId;
+        window.location.href = url;
         alert("ID: " + tid + ", Product ID: " + productId + ", Seller ID: " + sellerId + " Quantity: " + quantity);
       }
       // TODO: Implement adding to cart
