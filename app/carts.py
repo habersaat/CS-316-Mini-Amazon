@@ -27,7 +27,7 @@ def carts():
 def minus_item(pid, quantity, price):
     form = CartsForm()
     uid = current_user.id 
-    Cart.decrease_quantity(uid,pid,int(quantity))
+    Cart.decrease_quantity(uid,pid,int(quantity), float(price))
     cart_items = Cart.items_by_uid(uid)
     return render_template('carts.html', title = "My Cart", form=form, cart_items=cart_items)
 
@@ -35,7 +35,7 @@ def minus_item(pid, quantity, price):
 def add_item(pid, quantity,price):
     form = CartsForm()
     uid = current_user.id 
-    Cart.increase_quantity(uid,pid,int(quantity))
+    Cart.increase_quantity(uid,pid,int(quantity), float(price))
     cart_items = Cart.items_by_uid(uid)
     return render_template('carts.html', title = "My Cart", form=form, cart_items=cart_items)
 
