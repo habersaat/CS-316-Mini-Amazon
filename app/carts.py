@@ -60,3 +60,10 @@ def delete_item(pid, sid):
     cart_items = Cart.items_by_uid(uid)
     return render_template('carts.html', title = "My Cart", form=form, cart_items=cart_items)
 
+@bp.route('/orders/', methods = ['GET','POST'])
+def submit_order():
+    form = CartsForm()
+    uid = current_user.id
+    order_items = Cart.items_by_uid(uid)
+    return render_template('orders.html', title = "My Orders", form=form, order_items=order_items)
+    

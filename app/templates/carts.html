@@ -49,7 +49,7 @@
     </tbody>
   </table>
   <h4> Total: ${{findtotal}}</h4>
-  <button class="btn" >SUBMIT ORDER</button>
+  <a href = "{{url_for('carts.submit_order')}}" type = "button">SUBMIT ORDER</a>
 
   <script>
     function decrement(pid, quantity, price){
