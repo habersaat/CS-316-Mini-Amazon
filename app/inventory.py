@@ -29,7 +29,7 @@ def sellers():
     page = request.args.get('page', 1, type=int)
     per_page = 10
 
-    seller_orders = []  #initialize an empty list
+    
 
     if request.method == 'POST' and form.validate_on_submit():
         seller_id = form.userID.data
@@ -42,6 +42,7 @@ def sellers():
     else:
         available_inventory = []
         total_inventory_count = 0
+        seller_orders = []  #initialize an empty list
 
     if not available_inventory and request.method == 'GET':
         flash('No inventory items found or invalid Seller ID.')
@@ -57,3 +58,20 @@ def sellers():
 def view_seller_orders(seller_id):
     seller_orders = Order.query.filter_by(user_id=seller_id).all()  # Assuming 'user_id' is the seller's ID
     return render_template('inventory.html', seller_orders=seller_orders)
+
+@bp.route('/new_order')
+def new_order():
+    return render_template('neworder.html')
+
+@bp.route('/handle_new_order', methods=['POST'])
+def handle_new_order():
+    # Get data from the form submission
+    order_id = request.form.get('order_id')
+    seller_id = request.form.get('seller_id')
+    customer_id = request.form.get('customer_id')
+    total_amount = request.form.get('total_amount')
+    recipient_address = request.form.get('recipient_address')
+    order_status = request.form.get('order_status')
+    delivery_date = request.form.get('delivery_date')
+
+    return render_template('inventory.html')

@@ -17,7 +17,7 @@ class Order:
         rows = app.db.execute('''
     SELECT order_id, seller_id, customer_id, total_amount, recipient_address, order_status, delivery_date
     FROM Orders
-    WHERE seller_id = :sid
+    WHERE seller_id = 102
     LIMIT :per_page OFFSET :offset
     ''',
                           sid=sid,

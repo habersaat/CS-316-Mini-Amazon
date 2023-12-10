@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2> </h2>
+<h2>Create a New Order</h2>
+
+<form action="{{ url_for('Inventory.handle_new_order') }}" method="post">
+    <label for="orderID">Order ID:</label>
+    <input type="text" id="orderID" name="order_id"><br><br>
+
+    <label for="sellerID">Seller ID:</label>
+    <input type="text" id="sellerID" name="seller_id"><br><br>
+
+    <label for="customerID">Customer ID:</label>
+    <input type="text" id="customerID" name="customer_id"><br><br>
+
+    <label for="totalAmount">Total Amount:</label>
+    <input type="text" id="totalAmount" name="total_amount"><br><br>
+
+    <label for="recipientAddress">Recipient Address:</label>
+    <input type="text" id="recipientAddress" name="recipient_address"><br><br>
+
+    <label for="orderStatus">Order Status:</label>
+    <input type="text" id="orderStatus" name="order_status"><br><br>
+
+    <label for="deliveryDate">Delivery Date:</label>
+    <input type="text" id="deliveryDate" name="delivery_date"><br><br>
+
+    <input type="submit" value="Create Order">
+</form>
+
+{% endblock %}
