@@ -25,6 +25,7 @@
         <th scope="col">Upvotes</th>
         <th scope="col"></th>
         <th scope="col"></th>
+        <th scope="col"></th>
       </tr>
     </thead>
     <tbody>
@@ -37,10 +38,14 @@
             <td>{{review.rating}}</td>
             <td>{{review.comment}}</td>
             <td>{{review.upvotes}}</td>
+
+            {% if review.user_has_upvoted %}
+            <td><button onclick="removeUpvote({{review.review_id}})" class="btn btn-danger">Downvote</button></td>
+            {% else %}
+            <td><button onclick="upvoteReview({{review.review_id}})" class="btn btn-success">Upvote</button></td>
+            {% endif %}
             
-            <!-- Modify Edit button to call editReview function -->
             <td><button onclick="editReview({{review.product_id}})" class="btn btn-primary">Edit</button></td>
-            <!-- Modify Remove button to call removeReview function -->
             <td><button onclick="removeReview({{review.product_id}})" class="btn btn-danger">Remove</button></td>
 
           </tr>
@@ -147,7 +152,53 @@
           alert("You must enter both a rating and a review to update.");
       }
   }
-    </script>
+
+  function upvoteReview(reviewId) {
+      fetch('/reviews/' + reviewId + '/upvote', {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ review_id: reviewId })
+      })
+      .then(response => response.json())
+      .then(data => {
+          if (data.success) {
+              // Update the upvote count on the page
+              const upvoteCountElement = document.querySelector('#upvote-count-' + reviewId);
+              upvoteCountElement.textContent = parseInt(upvoteCountElement.textContent, 10) + 1;
+          } else {
+              alert('You have already upvoted this review.');
+          }
+      })
+      .catch(error => {
+          console.error('Error:', error);
+      });
+  }
+
+  function removeUpvote(reviewId) {
+      fetch('/reviews/' + reviewId + '/remove_upvote', {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ review_id: reviewId })
+      })
+      .then(response => response.json())
+      .then(data => {
+          if (data.success) {
+              // Update the upvote count on the page
+              const upvoteCountElement = document.querySelector('#upvote-count-' + reviewId);
+              upvoteCountElement.textContent = parseInt(upvoteCountElement.textContent, 10) - 1;
+          } else {
+              alert('You have not upvoted this review.');
+          }
+      })
+      .catch(error => {
+          console.error('Error:', error);
+      });
+  }
+</script>
 
 {% endblock %}
 

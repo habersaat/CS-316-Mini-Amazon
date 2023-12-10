@@ -39,3 +39,8 @@ SELECT pg_catalog.setval('public.inventory_id_seq',
 SELECT pg_catalog.setval('public.tags_id_seq',
                          (SELECT MAX(id)+1 FROM Tags),
                          false);
+
+\COPY UserUpvotes FROM 'UserUpvotes.csv' WITH DELIMITER ',' NULL '' CSV
+SELECT pg_catalog.setval('public.userupvotes_id_seq',
+                         (SELECT MAX(id)+1 FROM UserUpvotes),
+                         false);

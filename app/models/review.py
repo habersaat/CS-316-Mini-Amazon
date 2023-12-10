@@ -53,6 +53,39 @@ WHERE user_id = :user_id AND product_id = :product_id
                     comment=comment,
                     user_id=user_id,
                     product_id=product_id)
+        
+
+    @staticmethod
+    def upvote_review(user_id, review_id):
+        app.db.execute('''
+UPDATE Review
+SET upvotes = upvotes + 1
+WHERE review_id = :review_id
+''',
+                    review_id=review_id)
+        app.db.execute('''
+INSERT INTO UserUpvotes (user_id, review_id)
+VALUES (:user_id, :review_id)
+''',
+                    user_id=user_id,
+                    review_id=review_id)
+        
+    @staticmethod
+    def remove_upvote(user_id, review_id):
+        app.db.execute('''
+UPDATE Review
+SET upvotes = upvotes - 1
+WHERE review_id = :review_id
+''',
+                    review_id=review_id)
+        app.db.execute('''
+DELETE FROM UserUpvotes
+WHERE user_id = :user_id AND review_id = :review_id
+''',
+                    user_id=user_id,
+                    review_id=review_id)
+            
+        
 
 #accessors
 
@@ -106,6 +139,17 @@ WHERE user_id = :user_id AND product_id = :product_id
 ''',
                               user_id=user_id,
                               product_id=product_id)
+        return rows[0][0] > 0 if rows else False
+    
+    @staticmethod
+    def has_upvoted(user_id, review_id):
+        rows = app.db.execute('''
+SELECT COUNT(*)
+FROM UserUpvotes
+WHERE user_id = :user_id AND review_id = :review_id
+''',
+                              user_id=user_id,
+                              review_id=review_id)
         return rows[0][0] > 0 if rows else False
 
         

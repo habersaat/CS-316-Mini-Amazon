@@ -63,3 +63,24 @@ def remove_seller_review():
         return jsonify({"success": True}), 200
     except Exception as e:
         return jsonify({"success": False, "message": str(e)}), 400
+    
+@bp.route('/edit_seller_review', methods=['POST'])
+def edit_seller_review():
+    data = request.json
+    user_id = data['user_id']
+    seller_id = data['seller_id']
+    rating = data['rating']
+    comment = data['comment']
+
+    if not current_user.is_authenticated:
+        return jsonify({"success": False, "message": "You must be logged in to edit a review."}), 400
+    elif not SellerReview.has_reviewed(user_id, seller_id):
+        return jsonify({"success": False, "message": "You have not reviewed this seller."}), 400
+
+    try:
+        SellerReview.edit_review(user_id, seller_id, rating, comment)
+        return jsonify({"success": True}), 200
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e)}), 400
+    
+    

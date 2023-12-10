@@ -84,3 +84,46 @@ def edit_review():
         return jsonify({"success": True}), 200
     except Exception as e:
         return jsonify({"success": False, "message": str(e)}), 400
+    
+@bp.route('/reviews/<int:review_id>/upvote', methods=['POST'])
+def upvote_review(review_id):
+    if not current_user.is_authenticated:
+        return jsonify({"success": False, "message": "You must be logged in to upvote a review."}), 400
+
+    user_id = current_user.id
+
+    if not Review.has_reviewed(user_id, review_id):
+        return jsonify({"success": False, "message": "You have not reviewed this product."}), 400
+    elif Review.has_upvoted(user_id, review_id):
+        upvotes = app.db.execute('''
+SELECT *
+FROM UserUpvotes
+WHERE user_id = :user_id AND review_id = :review_id
+''',
+                              user_id=user_id,
+                              review_id=review_id)
+        return jsonify({"success": False, "message": "You have already upvoted this review!!" + "current user upvotes:" + upvotes}), 400
+
+    try:
+        Review.upvote_review(user_id, review_id)
+        return jsonify({"success": True}), 200
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e)}), 400
+    
+@bp.route('/reviews/<int:review_id>/remove_upvote', methods=['POST'])
+def remove_upvote(review_id):
+    if not current_user.is_authenticated:
+        return jsonify({"success": False, "message": "You must be logged in to remove an upvote."}), 400
+
+    user_id = current_user.id
+
+    if not Review.has_reviewed(user_id, review_id):
+        return jsonify({"success": False, "message": "You have not reviewed this product."}), 400
+    elif not Review.has_upvoted(user_id, review_id):
+        return jsonify({"success": False, "message": "You have not upvoted this review."}), 400
+
+    try:
+        Review.remove_upvote(user_id, review_id)
+        return jsonify({"success": True}), 200
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e)}), 400

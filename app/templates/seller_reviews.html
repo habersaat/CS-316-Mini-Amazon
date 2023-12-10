@@ -24,6 +24,7 @@
         <th scope="col">Upvotes</th>
         <th scope="col"></th>
         <th scope="col"></th>
+        <th scope="col"></th>
       </tr>
     </thead>
     <tbody>
@@ -36,6 +37,9 @@
                 <td>{{seller_review.rating}}</td>
                 <td>{{seller_review.comment}}</td>
                 <td>{{seller_review.upvotes}}</td>
+
+                
+                <td><button class="btn btn-success">Upvote</button></td>
                 
                 <!-- Modify Edit button to call editReview function -->
                 <td><button onclick="editReview({{seller_review.seller_id}})" class="btn btn-primary">Edit</button></td>
