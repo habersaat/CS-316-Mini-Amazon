@@ -2,24 +2,23 @@
 
 {% block content %}
 
-<h1>Reviews</h1>
+<h1>SellerReviews</h1>
 
 <form action="" method="post" novalidate>
   {{ form.hidden_tag() }}
   <p>
-    {{ form.productID.label }}<br/>
-    {{ form.productID(size=32) }}<br/>
+    {{ form.sellerID.label }}<br/>
+    {{ form.sellerID(size=32) }}<br/>
     <p>{{ form.submit() }}</p>
   </p>
 </form>
-
 
 <table class='table table-hover table-bordered container'>
     <thead class="thead-dark">
       <tr>
         <th scope="col">User ID</th>
         <th scope="col">Timestamp</th>
-        <th scope="col">Product ID</th>
+        <th scope="col">Seller ID</th>
         <th scope="col">Rating</th>
         <th scope="col">Comment</th>
         <th scope="col">Upvotes</th>
@@ -29,31 +28,31 @@
       </tr>
     </thead>
     <tbody>
-      {% for review in recent_reviews%}
-      
-          <tr>
-            <td>{{review.user_id}}</td>
-            <td>{{ review.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</td>
-            <td>{{review.product_id}}</td>
-            <td>{{review.rating}}</td>
-            <td>{{review.comment}}</td>
-            <td>{{review.upvotes}}</td>
+      {% for seller_review in recent_reviews%}
+         
+            <tr>
+                <td>{{seller_review.user_id}}</td>
+                <td>{{ seller_review.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                <td>{{seller_review.seller_id}}</td>
+                <td>{{seller_review.rating}}</td>
+                <td>{{seller_review.comment}}</td>
+                <td>{{seller_review.upvotes}}</td>
 
-            {% if review.user_has_upvoted %}
-            <td><button onclick="removeUpvote({{review.review_id}})" class="btn btn-danger">Downvote</button></td>
-            {% else %}
-            <td><button onclick="upvoteReview({{review.review_id}})" class="btn btn-success">Upvote</button></td>
-            {% endif %}
-            
-            <td><button onclick="editReview({{review.product_id}})" class="btn btn-primary">Edit</button></td>
-            <td><button onclick="removeReview({{review.product_id}})" class="btn btn-danger">Remove</button></td>
-
-          </tr>
-          
-      {% endfor %}
+                
+                <td><button class="btn btn-success">Upvote</button></td>
+                
+                <!-- Modify Edit button to call editReview function -->
+                <td><button onclick="editReview({{seller_review.seller_id}})" class="btn btn-primary">Edit</button></td>
+                <!-- Modify Remove button to call removeReview function -->
+                <td><button onclick="removeReview({{seller_review.seller_id}})" class="btn btn-danger">Remove</button></td>
+    
+            </tr>
+             
+        {% endfor %}
     </tbody>
-  </table>
+    </table>
 
+    
   <div class="page-buttons">
     {% if page > 1 %}
       <a href="{{ url_for('reviews.reviews', page=page-1, user_id=user_id) }}" class="previous">&laquo; Previous</a>
@@ -66,21 +65,22 @@
   <script>
     document.addEventListener('DOMContentLoaded', (event) => {
       if(window.location.href.indexOf("user_id") > -1) {
-        window.history.replaceState({}, document.title, "/reviews");
+        window.history.replaceState({}, document.title, "/seller_reviews");
       }
     });
 
 
-    function removeReview(productId) {
+    
+    function removeReview(sellerID) {
     var userId = {{current_user.id}}; // Current user's ID
 
     if (confirm("Are you sure you want to remove your review?")) {
-      fetch('/remove_review', {
+      fetch('/remove_seller_review', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ user_id: userId, product_id: productId })
+        body: JSON.stringify({ user_id: userId, seller_id: sellerID })
       })
       .then(response => response.json())
       .then(data => {
@@ -98,7 +98,7 @@
       }
     }
 
-    function editReview(productId) {
+    function editReview(sellerId) {
       var userId = {{current_user.id}}; // Current user's ID
 
       //Prompt to get the rating
@@ -115,13 +115,13 @@
               //Prepare the data to be sent to the server
               var reviewData = {
                   user_id: userId, // Assuming you have access to current_user's ID
-                  product_id: productId, // productId,
+                  seller_id: sellerId, // productId,
                   rating: rating,
                   comment: review
               };
 
             //Make an AJAX POST request to edit the review
-            fetch('/edit_review', {
+            fetch('/edit_seller_review', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -136,7 +136,7 @@
                     window.location.reload(); // Reload the page to update the button
                 } else {
                     //If there was an error editing the review
-                    alert("Error editing review: " + data.message + " User ID: " + userId + " Prod ID: " + productId);
+                    alert("Error editing review: " + data.message + " User ID: " + userId + " Seller ID: " + sellerId);
                 }
             })
             .catch(error => {
@@ -152,53 +152,6 @@
           alert("You must enter both a rating and a review to update.");
       }
   }
-
-  function upvoteReview(reviewId) {
-      fetch('/reviews/' + reviewId + '/upvote', {
-          method: 'POST',
-          headers: {
-              'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ review_id: reviewId })
-      })
-      .then(response => response.json())
-      .then(data => {
-          if (data.success) {
-              // Update the upvote count on the page
-              const upvoteCountElement = document.querySelector('#upvote-count-' + reviewId);
-              upvoteCountElement.textContent = parseInt(upvoteCountElement.textContent, 10) + 1;
-          } else {
-              alert('You have already upvoted this review.');
-          }
-      })
-      .catch(error => {
-          console.error('Error:', error);
-      });
-  }
-
-  function removeUpvote(reviewId) {
-      fetch('/reviews/' + reviewId + '/remove_upvote', {
-          method: 'POST',
-          headers: {
-              'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ review_id: reviewId })
-      })
-      .then(response => response.json())
-      .then(data => {
-          if (data.success) {
-              // Update the upvote count on the page
-              const upvoteCountElement = document.querySelector('#upvote-count-' + reviewId);
-              upvoteCountElement.textContent = parseInt(upvoteCountElement.textContent, 10) - 1;
-          } else {
-              alert('You have not upvoted this review.');
-          }
-      })
-      .catch(error => {
-          console.error('Error:', error);
-      });
-  }
-</script>
+    </script>
 
 {% endblock %}
-

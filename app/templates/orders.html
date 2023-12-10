@@ -1,0 +1,195 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1>My Orders</h1>
+
+<!-- <form action="" method="post" novalidate>
+  {{ form.hidden_tag() }}
+  <p>
+    {{ form.userID.label }}<br/>
+    {{ form.userID(size=32) }}<br/>
+    <p>{{ form.submit() }}</p>
+    </p>
+</form> -->
+
+
+
+<table class='table table-hover table-bordered container' id = "cart-items">
+    <thead class="thead-dark">
+      <tr>
+        <th scope="col">Product Name</th>
+        <th scope="col">Image</th>
+        <th scope="col">Quantity</th>
+        <th scope="col">Final Price</th>
+        <th scope="col">Final Cost</th>
+        <th scope="col">Seller ID</th>
+        <th scope="col"></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for item in order_items%}
+        <tr>
+          <!--<td>{{item.id}}</td>-->
+          <td>{{item.name}}</td>
+          <td><img src="{{item.image_url}}" width="100" height="100"></td>
+          <!--<td>{{item.quantity}}</td> -->
+          <td><p>{{item.quantity}}</p></td>
+          <td>${{item.price}}</td>
+          <td>${{item.quantity * item.price}}</td>
+          <td>{{item.seller_id}}</td>
+          
+          {% if has_reviewed_seller == True %}
+            <button class="write-review" onclick="editSellerReview({{ item.sid }})">Edit Seller Review</button>
+            <button class="write-review" onclick="removeSellerReview({{ item.sid }})">Remove Review</button>
+            {% else %}
+            <button class="write-review" onclick="writeSellerReview({{ item.sid }})">Write Seller Review</button>
+            {% endif %}
+          
+
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <h4> Total: ${{findtotal}}</h4>
+
+  <script>
+    function writeSellerReview(sid) {
+      var userId = {{current_user.id}}; // Current user's ID
+      // Use prompt to get the rating
+      var rating = prompt("Please enter your rating (1-5):", "");
+      // Use prompt to get the review text
+      var review = prompt("Please enter your review:", "");
+
+      // Check if both rating and review are provided
+      if (rating && review) {
+          // Ask for confirmation before submitting
+          var isConfirmed = confirm("Are you sure you want to submit your review?");
+          
+          if (isConfirmed) {
+              // Prepare the data to be sent to the server
+              var sellerReviewData = {
+                  user_id: userId,
+                  seller_id: sid, // seller_id is passed in as a parameter,
+                  rating: rating,
+                  comment: review
+              };
+
+            // Make an AJAX POST request to submit the review
+            fetch('/submit_seller_review', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(sellerReviewData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // If the review was successfully submitted
+                    alert("Your review has been submitted.");
+                } else {
+                    // If there was an error submitting the review
+                    alert("Error submitting review: " + data.message + " User ID: " + userId + " Seller ID: " + sid);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert("An error occurred while submitting your review.");
+            });
+          } else {
+              // Handle the case where the user decides not to submit the review
+              alert("Your review was not submitted.");
+          }
+      } else {
+          // Handle the case where the user leaves the prompt empty or clicks cancel
+          alert("You must enter both a rating and a review to submit.");
+      }
+  }
+
+  function removeSellerReview(sid) {
+    var userId = {{current_user.id}}; // Current user's ID
+
+    if (confirm("Are you sure you want to remove your review?")) {
+      fetch('/remove_seller_review', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ user_id: userId, seller_id: sid })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          alert("Your review has been removed.");
+          window.location.reload(); // Reload the page to update the button
+        } else {
+          alert("Error removing review: " + data.message);
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert("An error occurred while removing your review.");
+      });
+      }
+    }
+
+    function editSellerReview(sid) {
+      var userId = {{current_user.id}}; // Current user's ID
+
+      //Prompt to get the rating
+      var rating = prompt("Please enter your updated rating (1-5):", "");
+      //Prompt to get the review text
+      var review = prompt("Please enter your updated review:", "");
+
+      //Check if both rating and review are provided
+      if (rating && review) {
+          //Ask for confirmation before updating
+          var isConfirmed = confirm("Are you sure you want to update your review?");
+          
+          if (isConfirmed) {
+              //Prepare the data to be sent to the server
+              var sellerReviewData = {
+                  user_id: userId, // Assuming you have access to current_user's ID
+                  seller_id: sid, // productId,
+                  rating: rating,
+                  comment: review
+              };
+
+            //Make an AJAX POST request to edit the review
+            fetch('/edit_seller_review', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(sellerReviewData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    //If the review was successfully edited
+                    alert("Your review has been updated.");
+                    window.location.reload(); // Reload the page to update the button
+                } else {
+                    //If there was an error editing the review
+                    alert("Error editing review: " + data.message + " User ID: " + userId + " Seller ID: " + sid);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert("An error occurred while editing your review.");
+            });
+          } else {
+              //Handle the case where the user decides not to edit the review
+              alert("Your review was not updated.");
+          }
+      } else {
+          //Handle the case where the user leaves the prompt empty or clicks cancel
+          alert("You must enter both a rating and a review to update.");
+      }
+  }
+
+
+  </script>
+
+{% endblock %}
