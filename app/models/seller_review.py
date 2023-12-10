@@ -59,7 +59,7 @@ WHERE user_id = :user_id AND seller_id = :seller_id
 
     @staticmethod
     def count_all_reviews(user_id=None, seller_id=None):
-        query = 'SELECT COUNT(*) FROM Review WHERE 1=1'
+        query = 'SELECT COUNT(*) FROM SellerReview WHERE 1=1'
         params = {}
         if user_id:
             query += ' AND user_id = :user_id'

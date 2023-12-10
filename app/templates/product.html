@@ -251,6 +251,7 @@
                 if (data.success) {
                     // If the review was successfully submitted
                     alert("Your review has been submitted.");
+                    window.location.reload(); // Reload the page to update the button
                 } else {
                     // If there was an error submitting the review
                     alert("Error submitting review: " + data.message + " User ID: " + userId + " Prod ID: " + productId);
