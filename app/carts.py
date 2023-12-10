@@ -5,7 +5,7 @@ from flask_wtf import FlaskForm
 from wtforms import IntegerField, PasswordField, BooleanField, SubmitField
 from wtforms.validators import ValidationError, DataRequired, Email, EqualTo
 
-
+from .models.inventory import Inventory
 from .models.cart import Cart
 
 from flask import Blueprint
@@ -20,7 +20,7 @@ class CartsForm(FlaskForm):
 def carts():
     form = CartsForm()
     if not current_user.is_authenticated:
-        return render_template('login.html', title='Sign In', form=form)
+        return
     uid = current_user.id
     cart_items = Cart.items_by_uid(uid)
     findtotal = sum([item.price*item.quantity for item in cart_items])
@@ -60,10 +60,17 @@ def delete_item(pid, sid):
     cart_items = Cart.items_by_uid(uid)
     return render_template('carts.html', title = "My Cart", form=form, cart_items=cart_items)
 
+
 @bp.route('/orders/', methods = ['GET','POST'])
 def submit_order():
     form = CartsForm()
     uid = current_user.id
     order_items = Cart.items_by_uid(uid)
+    for item in order_items:
+        invquant = Cart.find_invquant(item.pid)
+        Cart.update_inventory(item.pid, item.sid, item.quantity, invquant)
+            
+    for item in order_items:
+        delete_item(item.pid, item.sid)
     return render_template('orders.html', title = "My Orders", form=form, order_items=order_items)
     

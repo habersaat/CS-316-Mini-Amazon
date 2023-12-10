@@ -54,6 +54,7 @@ class Cart:
    
     @staticmethod
     def decrease_quantity(uid, pid, quantity):
+        if (quantity<2): return
         app.db.execute('''
             UPDATE Carts set quantity=:quantity
             WHERE uid=:uid AND pid=:pid''',
@@ -61,9 +62,20 @@ class Cart:
             pid=pid,
             quantity=quantity-1)
         return
+    
+    
+    def find_invquant(pid):
+        invquant = (app.db.execute('''
+            SELECT Inventory.quantity
+            FROM Inventory, Carts
+            WHERE Inventory.pid=Carts.pid AND Inventory.sid=Carts.sid AND Carts.pid=:pid''',
+            pid=pid)[0][0])
+        return invquant
    
     @staticmethod
     def increase_quantity(uid, pid, quantity):
+        invquant = Cart.find_invquant(pid)
+        if (quantity >= invquant): quantity = invquant-1
         app.db.execute('''
         UPDATE Carts SET quantity=:quantity
         WHERE uid=:uid AND pid=:pid''',
@@ -83,4 +95,14 @@ class Cart:
             uid = uid)
         if len(rows)==0 or rows is None:
             return None
+        return 
         
+    def update_inventory(pid, sid, numsold, curquant):
+        app.db.execute('''
+        UPDATE Inventory SET quantity=:quantity
+        WHERE pid=:pid AND sid=:sid''',
+        pid=pid,
+        sid=sid,
+        quantity=(int(curquant)-int(numsold)))
+        return
+    
