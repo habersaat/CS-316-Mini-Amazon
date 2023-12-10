@@ -26,19 +26,19 @@ def index():
     print(f'visits: {visits}')
 
     # initialize the database if this is the first time the index page has been visited
-    if visits == 1:
+    #if visits == 1:
 
         # initialize the product rading table. This essentially writes over the randomly 
         # generated ratings and replaces them with the average ratings of the products. 
         # his is efficient on subsequent visits because we update on each review instead 
         # of recalculating the average rating each time.
-        Product.product_rating_init() # Can comment out for faster loading
+        #Product.product_rating_init() # Can comment out for faster loading
 
         # initialize the inventory table. This does two thing. First, it sets the product
         # info on the product page to the info of the cheapest instance of that item being
         # sold. Second, it sets low_stock variable correctly according to our definition of
         # low stock.
-        Product.inventory_init() # Can comment out for faster loading
+        #Product.inventory_init() # Can comment out for faster loading
 
         # initialize the shipping speed table. This sets the shipping speed of each product
         # to a time value between 2 and 10 days which is calculated based on the distance
