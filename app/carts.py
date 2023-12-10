@@ -5,6 +5,7 @@ from flask_wtf import FlaskForm
 from wtforms import IntegerField, PasswordField, BooleanField, SubmitField
 from wtforms.validators import ValidationError, DataRequired, Email, EqualTo
 
+from .models.inventory import Inventory
 from .models.cart import Cart
 from .models.product import Product
 from .models.inventory import Inventory
@@ -24,24 +25,44 @@ class CartsForm(FlaskForm):
 @bp.route('/carts', methods=['GET', 'POST'])
 def carts():
     form = CartsForm()
+    if not current_user.is_authenticated:
+        return
     uid = current_user.id
     cart_items = Cart.items_by_uid(uid)
-    print("The cart items are: ", cart_items)
-    return render_template('carts.html', title='My Cart', form=form, cart_items=cart_items)
-   
-@bp.route('/carts/<pid>', methods = ['GET','POST'])
-def addToCart(pid):
+    findtotal = sum([item.price*item.quantity for item in cart_items])
+    return render_template('carts.html', title='My Cart', form=form, cart_items=cart_items, findtotal=findtotal)
+
+@bp.route('/carts/minus/<pid>,<quantity>,<price>', methods = ['GET', 'POST'])
+def minus_item(pid, quantity, price):
     form = CartsForm()
     uid = current_user.id
-    Cart.add_to_cart(uid, pid)
+    Cart.decrease_quantity(uid,pid,int(quantity))
     cart_items = Cart.items_by_uid(uid)
     return render_template('carts.html', title = "My Cart", form=form, cart_items=cart_items)
 
-@bp.route('/carts/delete/<pid>', methods = ['GET', 'DELETE'])
-def delete_item(pid):
+@bp.route('/carts/add/<pid>,<quantity>,<price>', methods = ['GET', 'POST'])
+def add_item(pid, quantity,price):
     form = CartsForm()
     uid = current_user.id
-    Cart.delete_from_cart(uid, pid)
+    Cart.increase_quantity(uid,pid,int(quantity))
+    cart_items = Cart.items_by_uid(uid)
+    return render_template('carts.html', title = "My Cart", form=form, cart_items=cart_items)
+
+@bp.route('/carts/<productId>/<quantity>/<sellerId>', methods = ['GET','POST'])
+def addToCart(productId, quantity, sellerId):
+    form = CartsForm()
+    uid = current_user.id
+    if (str(quantity)=="NaN"):
+            quantity=1
+    Cart.add_to_cart(uid, productId, quantity, sellerId)
+    cart_items = Cart.items_by_uid(uid)
+    return render_template('carts.html', title = "My Cart", form=form, cart_items=cart_items)
+
+@bp.route('/carts/delete/<pid>/<sid>', methods = ['GET', 'DELETE'])
+def delete_item(pid, sid):
+    form = CartsForm()
+    uid = current_user.id
+    Cart.delete_from_cart(uid, pid, sid)
     cart_items = Cart.items_by_uid(uid)
     return render_template('carts.html', title = "My Cart", form=form, cart_items=cart_items)
 
