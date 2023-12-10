@@ -20,16 +20,12 @@ class SellerForm(FlaskForm):
     userID = IntegerField('Seller ID', validators=[DataRequired()])
     submit = SubmitField('View Inventory')
 
-
-
 @bp.route('/inventory', methods=['GET', 'POST'])
 def sellers():
     form = SellerForm()
     seller_id = request.args.get('seller_id', type=int)
     page = request.args.get('page', 1, type=int)
     per_page = 10
-
-    
 
     if request.method == 'POST' and form.validate_on_submit():
         seller_id = form.userID.data
